@@ -1,0 +1,7 @@
+appPort: 8001
+dbConfig:
+  host: "localhost"
+  username: "postgres"
+  password: "12345"
+  port: 5432
+  dbName: "fund_raiser_system"
