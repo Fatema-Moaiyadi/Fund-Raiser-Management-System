@@ -16,8 +16,10 @@ func initDependencies() (dependencies, error) {
 		return dependencies{}, err
 	}
 
+	jwtTokenService := service.NewJWTTokenService()
+
 	userDb := database.NewUserDB(db)
-	userService := service.NewUserService(userDb)
+	userService := service.NewUserService(userDb, jwtTokenService)
 	userHandler := handler.NewUserHandler(userService)
 
 	deps := dependencies{

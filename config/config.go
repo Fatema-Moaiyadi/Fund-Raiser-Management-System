@@ -7,8 +7,9 @@ import (
 )
 
 type configurations struct {
-	AppPort  int64    `yaml:"appPort"`
-	DBConfig DBConfig `yaml:"dbConfig"`
+	AppPort   int64     `yaml:"appPort"`
+	DBConfig  DBConfig  `yaml:"dbConfig"`
+	JWTConfig JWTConfig `yaml:"jwtConfig"`
 }
 
 type DBConfig struct {
@@ -17,6 +18,11 @@ type DBConfig struct {
 	Password string `yaml:"password"`
 	Port     int64  `yaml:"port"`
 	DBName   string `yaml:"dbName"`
+}
+
+type JWTConfig struct {
+	Secret   string `yaml:"secret"`
+	Duration int    `yaml:"duration"`
 }
 
 var config configurations
@@ -43,4 +49,8 @@ func GetAppPort() string {
 
 func GetDBConfig() DBConfig {
 	return config.DBConfig
+}
+
+func GetJWTConfig() JWTConfig {
+	return config.JWTConfig
 }

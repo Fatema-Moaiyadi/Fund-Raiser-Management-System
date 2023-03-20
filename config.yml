@@ -5,3 +5,6 @@ dbConfig:
   password: "12345"
   port: 5432
   dbName: "fund_raiser_system"
+jwtConfig:
+  secret: "mysecretkey"
+  duration: 10

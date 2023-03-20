@@ -1,16 +1,37 @@
 package database
 
-import "github.com/jmoiron/sqlx"
+import (
+	"database/sql"
+	"github.com/fatema-moaiyadi/fund-raiser-system/models"
+	systemerrors "github.com/fatema-moaiyadi/fund-raiser-system/system_errors"
+	"github.com/jmoiron/sqlx"
+)
 
 type userDB struct {
 	database *sqlx.DB
 }
 
 type UserDatabase interface {
+	FindUser(email string) (*models.UserInfo, error)
 }
 
 func NewUserDB(db *sqlx.DB) UserDatabase {
 	return &userDB{
 		database: db,
 	}
+}
+
+func (ud *userDB) FindUser(email string) (*models.UserInfo, error) {
+	userInfo := new(models.UserInfo)
+	err := ud.database.Get(userInfo, findUserQuery, email)
+
+	if err == sql.ErrNoRows {
+		return nil, systemerrors.ErrUserNotFound
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return userInfo, nil
 }
