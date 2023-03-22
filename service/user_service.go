@@ -2,7 +2,11 @@ package service
 
 import (
 	"github.com/fatema-moaiyadi/fund-raiser-system/database"
+	"github.com/fatema-moaiyadi/fund-raiser-system/models"
 	systemerrors "github.com/fatema-moaiyadi/fund-raiser-system/system_errors"
+	"github.com/fatema-moaiyadi/fund-raiser-system/validations"
+	"github.com/sethvargo/go-password/password"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type userService struct {
@@ -12,6 +16,7 @@ type userService struct {
 
 type UserService interface {
 	Login(email string, password string) (string, error)
+	CreateUser(userDetails *models.UserInfo) error
 }
 
 func NewUserService(userDB database.UserDatabase, ts TokenService) UserService {
@@ -27,7 +32,8 @@ func (us *userService) Login(email string, password string) (string, error) {
 		return "", err
 	}
 
-	if userInfo.Password != password {
+	err = bcrypt.CompareHashAndPassword([]byte(userInfo.Password), []byte(password))
+	if err != nil {
 		return "", systemerrors.ErrPasswordIncorrect
 	}
 
@@ -37,4 +43,34 @@ func (us *userService) Login(email string, password string) (string, error) {
 	}
 
 	return token, nil
+}
+
+func (us *userService) CreateUser(userDetails *models.UserInfo) error {
+	err := validations.ValidateCreateUserReq(userDetails)
+	if err != nil {
+		return err
+	}
+
+	randomPassword, err := password.Generate(10, 0, 0, false, true)
+	if err != nil {
+		return err
+	}
+
+	hashedPasswordByte, err := bcrypt.GenerateFromPassword([]byte(randomPassword), 14)
+	if err != nil {
+		return err
+	}
+
+	userDetails.Password = string(hashedPasswordByte)
+
+	err = us.userDB.CreateUser(userDetails)
+	if err != nil {
+		return err
+	}
+
+	//need to show user the actual un-hashed or decrypted password
+	//for first time login
+	userDetails.Password = randomPassword
+
+	return nil
 }

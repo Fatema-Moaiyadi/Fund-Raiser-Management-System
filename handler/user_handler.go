@@ -6,6 +6,7 @@ import (
 	"github.com/fatema-moaiyadi/fund-raiser-system/models"
 	"github.com/fatema-moaiyadi/fund-raiser-system/service"
 	systemerrors "github.com/fatema-moaiyadi/fund-raiser-system/system_errors"
+	"github.com/fatema-moaiyadi/fund-raiser-system/validations"
 	"net/http"
 )
 
@@ -15,6 +16,7 @@ type userHandler struct {
 
 type UserHandler interface {
 	LoginHandler() http.HandlerFunc
+	CreateUser() http.HandlerFunc
 }
 
 func NewUserHandler(userService service.UserService) UserHandler {
@@ -41,12 +43,13 @@ func (userHandler *userHandler) LoginHandler() http.HandlerFunc {
 			response, err := json.Marshal(errorRes)
 			if err != nil {
 				fmt.Fprintf(res, "Decoding error")
+				return
 			}
 			res.Write(response)
 			return
 		}
 
-		err = loginReq.Validate()
+		err = validations.ValidateLoginRequest(*loginReq)
 		if err != nil {
 			res.WriteHeader(http.StatusBadRequest)
 
@@ -82,6 +85,7 @@ func (userHandler *userHandler) LoginHandler() http.HandlerFunc {
 			response, err := json.Marshal(errorRes)
 			if err != nil {
 				fmt.Fprintf(res, "Decoding error")
+				return
 			}
 			res.Write(response)
 			return
@@ -96,6 +100,50 @@ func (userHandler *userHandler) LoginHandler() http.HandlerFunc {
 		response, err := json.Marshal(loginResp)
 		if err != nil {
 			fmt.Fprintf(res, "Decoding error")
+			return
+		}
+		res.Write(response)
+	}
+}
+
+func (userHandler *userHandler) CreateUser() http.HandlerFunc {
+	return func(res http.ResponseWriter, request *http.Request) {
+		res.Header().Set("Content-Type", "application/json")
+
+		createUserRequest := new(models.UserInfo)
+
+		err := json.NewDecoder(request.Body).Decode(createUserRequest)
+		if err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+
+			errorRes := new(models.ErrorResponse)
+			errorRes.Error.Message = "Invalid Request"
+			errorRes.Error.Status = http.StatusBadRequest
+			errorRes.Code = -1
+
+			response, err := json.Marshal(errorRes)
+			if err != nil {
+				fmt.Fprintf(res, "Decoding error")
+			}
+			res.Write(response)
+			return
+		}
+
+		err = userHandler.userService.CreateUser(createUserRequest)
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		createUserResponse := new(models.UserInfoResponse)
+
+		res.WriteHeader(http.StatusOK)
+		createUserResponse.Code = 0
+		createUserResponse.Data.UserInfo = *createUserRequest
+		response, err := json.Marshal(createUserResponse)
+		if err != nil {
+			fmt.Fprintf(res, "Decoding error")
+			return
 		}
 		res.Write(response)
 	}

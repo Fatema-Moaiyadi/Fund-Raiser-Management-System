@@ -5,6 +5,7 @@ import (
 	"github.com/fatema-moaiyadi/fund-raiser-system/models"
 	systemerrors "github.com/fatema-moaiyadi/fund-raiser-system/system_errors"
 	"github.com/jmoiron/sqlx"
+	"time"
 )
 
 type userDB struct {
@@ -13,6 +14,7 @@ type userDB struct {
 
 type UserDatabase interface {
 	FindUser(email string) (*models.UserInfo, error)
+	CreateUser(userDetails *models.UserInfo) error
 }
 
 func NewUserDB(db *sqlx.DB) UserDatabase {
@@ -34,4 +36,20 @@ func (ud *userDB) FindUser(email string) (*models.UserInfo, error) {
 	}
 
 	return userInfo, nil
+}
+
+func (ud *userDB) CreateUser(userDetails *models.UserInfo) error {
+	err := ud.database.Get(userDetails, insertUserQuery,
+		userDetails.EmailID,
+		userDetails.Name,
+		userDetails.Password,
+		userDetails.IsAdmin,
+		time.Now(),
+		time.Now())
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

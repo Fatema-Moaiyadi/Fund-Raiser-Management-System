@@ -7,7 +7,9 @@ import (
 )
 
 type dependencies struct {
-	userHandler handler.UserHandler
+	userHandler  handler.UserHandler
+	tokenService service.TokenService
+	fundsHandler handler.FundsHandler
 }
 
 func initDependencies() (dependencies, error) {
@@ -18,12 +20,20 @@ func initDependencies() (dependencies, error) {
 
 	jwtTokenService := service.NewJWTTokenService()
 
+	//initializing user flows
 	userDb := database.NewUserDB(db)
 	userService := service.NewUserService(userDb, jwtTokenService)
 	userHandler := handler.NewUserHandler(userService)
 
+	//initializing fund flows
+	fundDB := database.NewFundsDB(db)
+	fundService := service.NewFundService(fundDB, userDb)
+	fundHandler := handler.NewFundsHandler(fundService)
+
 	deps := dependencies{
-		userHandler: userHandler,
+		userHandler:  userHandler,
+		tokenService: jwtTokenService,
+		fundsHandler: fundHandler,
 	}
 	return deps, nil
 }
