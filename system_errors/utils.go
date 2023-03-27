@@ -12,12 +12,14 @@ func WriteErrorResponse(res http.ResponseWriter, err error) {
 	switch err {
 	case ErrMissingAuthorizationHeader, ErrMalformedToken:
 		statusCode = http.StatusBadRequest
-	case ErrInvalidToken:
+	case ErrInvalidToken, ErrPasswordIncorrect:
 		statusCode = http.StatusUnauthorized
 	case ErrForbidden:
 		statusCode = http.StatusForbidden
-	case ErrInvalidRequestUserNameEmpty, ErrInvalidRequestEmailEmpty, ErrInvalidRequestFundNameEmpty, ErrFundAmountInvalid:
+	case ErrInvalidRequestUserNameEmpty, ErrInvalidRequestEmailEmpty, ErrInvalidRequestFundNameEmpty, ErrAmountInvalid:
 		statusCode = http.StatusBadRequest
+	case ErrUserNotFound, ErrFundNotFound:
+		statusCode = http.StatusNotFound
 	default:
 		statusCode = http.StatusInternalServerError
 	}

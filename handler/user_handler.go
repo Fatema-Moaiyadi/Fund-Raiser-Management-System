@@ -17,6 +17,7 @@ type userHandler struct {
 type UserHandler interface {
 	LoginHandler() http.HandlerFunc
 	CreateUser() http.HandlerFunc
+	FindUserByParam() http.HandlerFunc
 }
 
 func NewUserHandler(userService service.UserService) UserHandler {
@@ -68,26 +69,7 @@ func (userHandler *userHandler) LoginHandler() http.HandlerFunc {
 
 		token, err := userHandler.userService.Login(loginReq.EmailID, loginReq.Password)
 		if err != nil {
-			errorRes := new(models.ErrorResponse)
-			if err == systemerrors.ErrUserNotFound {
-				res.WriteHeader(http.StatusNotFound)
-				errorRes.Error.Status = http.StatusNotFound
-			} else if err == systemerrors.ErrPasswordIncorrect {
-				res.WriteHeader(http.StatusUnauthorized)
-				errorRes.Error.Status = http.StatusUnauthorized
-			} else {
-				res.WriteHeader(http.StatusInternalServerError)
-				errorRes.Error.Status = http.StatusInternalServerError
-			}
-			errorRes.Error.Message = err.Error()
-			errorRes.Code = -1
-
-			response, err := json.Marshal(errorRes)
-			if err != nil {
-				fmt.Fprintf(res, "Decoding error")
-				return
-			}
-			res.Write(response)
+			systemerrors.WriteErrorResponse(res, err)
 			return
 		}
 
@@ -114,18 +96,7 @@ func (userHandler *userHandler) CreateUser() http.HandlerFunc {
 
 		err := json.NewDecoder(request.Body).Decode(createUserRequest)
 		if err != nil {
-			res.WriteHeader(http.StatusBadRequest)
-
-			errorRes := new(models.ErrorResponse)
-			errorRes.Error.Message = "Invalid Request"
-			errorRes.Error.Status = http.StatusBadRequest
-			errorRes.Code = -1
-
-			response, err := json.Marshal(errorRes)
-			if err != nil {
-				fmt.Fprintf(res, "Decoding error")
-			}
-			res.Write(response)
+			systemerrors.WriteErrorResponse(res, err)
 			return
 		}
 
@@ -146,5 +117,11 @@ func (userHandler *userHandler) CreateUser() http.HandlerFunc {
 			return
 		}
 		res.Write(response)
+	}
+}
+
+func (userHandler *userHandler) FindUserByParam() http.HandlerFunc {
+	return func(res http.ResponseWriter, request *http.Request) {
+
 	}
 }

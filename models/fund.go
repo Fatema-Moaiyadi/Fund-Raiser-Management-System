@@ -33,8 +33,8 @@ type CreateFundRequest struct {
 }
 
 type FundDetails struct {
-	FundID         int        `db:"fund_id,omitempty" json:"fund_id,omitempty"`
-	RaisedByUserID int        `db:"raised_by_user_id,omitempty" json:"raised_by_user_id,omitempty"`
+	FundID         int64      `db:"fund_id,omitempty" json:"fund_id,omitempty"`
+	RaisedByUserID int64      `db:"raised_by_user_id,omitempty" json:"raised_by_user_id,omitempty"`
 	FundName       string     `db:"name,omitempty" json:"fund_name,omitempty"`
 	AmountRaised   int64      `json:"amount_raised,omitempty"`
 	TotalAmount    int64      `db:"amount,omitempty" json:"total_amount,omitempty"`
@@ -43,9 +43,18 @@ type FundDetails struct {
 	UpdatedAt      time.Time  `db:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
+type FundDetailsBrief struct {
+	FundName     string     `db:"name,omitempty" json:"fund_name,omitempty"`
+	AmountRaised int64      `json:"amount_raised,omitempty"`
+	TotalAmount  int64      `db:"amount,omitempty" json:"total_amount,omitempty"`
+	FundStatus   FundStatus `db:"status,omitempty" json:"fund_status,omitempty"`
+}
+
 type CreateFundResponse struct {
 	Code int `json:"code"`
 	Data struct {
 		FundInfo FundDetails `json:"fund_info"`
 	} `json:"data"`
 }
+
+

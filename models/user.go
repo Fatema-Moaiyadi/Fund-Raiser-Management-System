@@ -3,7 +3,7 @@ package models
 import "time"
 
 type UserInfo struct {
-	UserID    int       `db:"user_id,omitempty" json:"user_id,omitempty"`
+	UserID    int64     `db:"user_id,omitempty" json:"user_id,omitempty"`
 	EmailID   string    `db:"email_id,omitempty" json:"email_id,omitempty"`
 	Name      string    `db:"name,omitempty" json:"name,omitempty"`
 	IsAdmin   bool      `db:"is_admin,omitempty" json:"is_admin,omitempty"`

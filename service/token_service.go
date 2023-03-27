@@ -9,12 +9,12 @@ import (
 )
 
 type TokenService interface {
-	GenerateToken(userId int, isAdmin bool) (string, error)
+	GenerateToken(userId int64, isAdmin bool) (string, error)
 	VerifyToken(jwtToken string) (*TokenPayload, error)
 }
 
 type TokenPayload struct {
-	UserID   int
+	UserID   int64
 	IsAdmin  bool
 	IssuedAt time.Time
 	*jwt.RegisteredClaims
@@ -27,7 +27,7 @@ func NewJWTTokenService() TokenService {
 	return &jwtTokenService{}
 }
 
-func (jt *jwtTokenService) GenerateToken(userId int, isAdmin bool) (string, error) {
+func (jt *jwtTokenService) GenerateToken(userId int64, isAdmin bool) (string, error) {
 	fmt.Println(jwt.NewNumericDate(time.Now().Add(time.Minute * time.Duration(config.GetJWTConfig().Duration))))
 	payload := &TokenPayload{
 		UserID:   userId,

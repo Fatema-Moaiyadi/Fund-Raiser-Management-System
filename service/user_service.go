@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/fatema-moaiyadi/fund-raiser-system/constants"
 	"github.com/fatema-moaiyadi/fund-raiser-system/database"
 	"github.com/fatema-moaiyadi/fund-raiser-system/models"
 	systemerrors "github.com/fatema-moaiyadi/fund-raiser-system/system_errors"
@@ -17,6 +18,7 @@ type userService struct {
 type UserService interface {
 	Login(email string, password string) (string, error)
 	CreateUser(userDetails *models.UserInfo) error
+	FindUser(filterKey string, filterValue interface{}) (*models.UserInfo, error)
 }
 
 func NewUserService(userDB database.UserDatabase, ts TokenService) UserService {
@@ -27,7 +29,7 @@ func NewUserService(userDB database.UserDatabase, ts TokenService) UserService {
 }
 
 func (us *userService) Login(email string, password string) (string, error) {
-	userInfo, err := us.userDB.FindUser(email)
+	userInfo, err := us.userDB.FindUser(constants.EmailColumnName, email)
 	if err != nil {
 		return "", err
 	}
@@ -73,4 +75,13 @@ func (us *userService) CreateUser(userDetails *models.UserInfo) error {
 	userDetails.Password = randomPassword
 
 	return nil
+}
+
+func (us *userService) FindUser(filterKey string, filterValue interface{}) (*models.UserInfo, error) {
+	userInfo, err := us.userDB.FindUser(filterKey, filterValue)
+	if err != nil {
+		return nil, err
+	}
+
+	return userInfo, nil
 }

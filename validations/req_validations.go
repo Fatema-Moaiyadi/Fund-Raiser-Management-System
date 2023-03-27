@@ -1,6 +1,8 @@
 package validations
 
 import (
+	"fmt"
+	"github.com/fatema-moaiyadi/fund-raiser-system/constants"
 	"github.com/fatema-moaiyadi/fund-raiser-system/models"
 	systemerrors "github.com/fatema-moaiyadi/fund-raiser-system/system_errors"
 	"net/mail"
@@ -42,8 +44,33 @@ func ValidateCreateFundReq(fundReq *models.CreateFundRequest) error {
 	}
 
 	if fundReq.TotalAmount <= 0 {
-		return systemerrors.ErrFundAmountInvalid
+		return systemerrors.ErrAmountInvalid
 	}
 
+	return nil
+}
+
+func ValidateDonateRequest(donationRequest models.DonationRequest, amountRaised int64, fundDetails *models.FundDetails) error {
+	totalFundAmount := fundDetails.TotalAmount
+
+	if donationRequest.DonationAmount <= 0 {
+		return systemerrors.ErrAmountInvalid
+	}
+
+	if donationRequest.DonationAmount < constants.MinDonationAmount {
+		return systemerrors.ConvertToUserSpecificError(systemerrors.ErrLessAmount, fmt.Sprintf("%d", constants.MinDonationAmount))
+	}
+
+	if donationRequest.DonationAmount > totalFundAmount-amountRaised {
+		return systemerrors.ConvertToUserSpecificError(systemerrors.ErrMoreAmount, fmt.Sprintf("%d", totalFundAmount-amountRaised))
+	}
+
+	if donationRequest.DonationAmount > constants.MaxDonationAmount {
+		return systemerrors.ConvertToUserSpecificError(systemerrors.ErrLessAmount, fmt.Sprintf("%d", constants.MaxDonationAmount))
+	}
+
+	if fundDetails.FundStatus != models.IN_PROGRESS {
+		return systemerrors.ErrFundInactive
+	}
 	return nil
 }

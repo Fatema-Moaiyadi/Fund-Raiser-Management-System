@@ -13,7 +13,7 @@ type userDB struct {
 }
 
 type UserDatabase interface {
-	FindUser(email string) (*models.UserInfo, error)
+	FindUser(filterKey string, filterValue interface{}) (*models.UserInfo, error)
 	CreateUser(userDetails *models.UserInfo) error
 }
 
@@ -23,9 +23,9 @@ func NewUserDB(db *sqlx.DB) UserDatabase {
 	}
 }
 
-func (ud *userDB) FindUser(email string) (*models.UserInfo, error) {
+func (ud *userDB) FindUser(filterKey string, filterValue interface{}) (*models.UserInfo, error) {
 	userInfo := new(models.UserInfo)
-	err := ud.database.Get(userInfo, findUserQuery, email)
+	err := ud.database.Get(userInfo, findUserQuery, filterKey, filterValue)
 
 	if err == sql.ErrNoRows {
 		return nil, systemerrors.ErrUserNotFound

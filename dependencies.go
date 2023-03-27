@@ -28,7 +28,7 @@ func initDependencies() (dependencies, error) {
 	//initializing fund flows
 	fundDB := database.NewFundsDB(db)
 	fundService := service.NewFundService(fundDB, userDb)
-	fundHandler := handler.NewFundsHandler(fundService)
+	fundHandler := handler.NewFundsHandler(fundService, userService)
 
 	deps := dependencies{
 		userHandler:  userHandler,
