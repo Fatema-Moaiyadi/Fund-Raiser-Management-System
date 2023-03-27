@@ -77,10 +77,11 @@ func (fs *fundService) Donate(request *models.DonationRequest) (*models.FundDeta
 	}
 
 	donatedFundDetails := &models.FundDetailsBrief{
-		FundName:     fundDetails.FundName,
-		AmountRaised: totalRaisedAmount,
-		TotalAmount:  fundDetails.TotalAmount,
-		FundStatus:   fundDetails.FundStatus,
+		FundName:          fundDetails.FundName,
+		TotalAmountRaised: totalRaisedAmount + request.DonationAmount,
+		AmountDonated:     request.DonationAmount,
+		TotalAmount:       fundDetails.TotalAmount,
+		FundStatus:        fundDetails.FundStatus,
 	}
 
 	return donatedFundDetails, nil

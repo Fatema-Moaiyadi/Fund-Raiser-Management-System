@@ -37,7 +37,7 @@ func (fdb *fundsDB) CreateFund(fundRequest *models.CreateFundRequest, userID int
 		userID,
 		fundRequest.FundName,
 		fundRequest.TotalAmount,
-		models.IN_PROGRESS,
+		models.IN_PROGRESS.String(),
 		time.Now(),
 		time.Now())
 
@@ -52,7 +52,7 @@ func (fdb *fundsDB) CreateNewDonation(request *models.DonationRequest) error {
 		request.DonatedInFund,
 		request.DonatedByUserID,
 		request.DonationAmount,
-		models.PAID,
+		models.PAID.String(),
 		time.Now(),
 		time.Now())
 
@@ -90,13 +90,17 @@ func (fdb *fundsDB) AddAmountToExistingDonation(request *models.DonationRequest)
 }
 
 func (fdb *fundsDB) GetTotalRaisedAmountForFund(fundID int64) (int64, error) {
-	var totalDonatedAmount int64
-	err := fdb.database.Get(totalDonatedAmount, getTotalRaisedAmountForFundQuery, fundID)
+	var totalRaisedAmount interface{}
+	err := fdb.database.Get(&totalRaisedAmount, getTotalRaisedAmountForFundQuery, fundID)
 	if err != nil {
 		return 0, err
 	}
 
-	return totalDonatedAmount, nil
+	if totalRaisedAmount == nil {
+		return 0, nil
+	}
+
+	return totalRaisedAmount.(int64), nil
 }
 
 func (fdb *fundsDB) GetFundDetailsByID(fundID int64) (*models.FundDetails, error) {
@@ -116,7 +120,7 @@ func (fdb *fundsDB) GetFundDetailsByID(fundID int64) (*models.FundDetails, error
 
 func (fdb *fundsDB) GetExistingDonationsForFundByUser(fundID, userID int64) ([]*models.DonationData, error) {
 	var donationsByUserForFund []*models.DonationData
-	err := fdb.database.Get(donationsByUserForFund, getPaidDonationsForFundByUserQuery,
+	err := fdb.database.Select(&donationsByUserForFund, getPaidDonationsForFundByUserQuery,
 		fundID, userID)
 
 	if err == sql.ErrNoRows {

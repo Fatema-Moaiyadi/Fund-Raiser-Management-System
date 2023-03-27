@@ -66,10 +66,10 @@ func ValidateDonateRequest(donationRequest models.DonationRequest, amountRaised 
 	}
 
 	if donationRequest.DonationAmount > constants.MaxDonationAmount {
-		return systemerrors.ConvertToUserSpecificError(systemerrors.ErrLessAmount, fmt.Sprintf("%d", constants.MaxDonationAmount))
+		return systemerrors.ConvertToUserSpecificError(systemerrors.ErrMoreAmount, fmt.Sprintf("%d", constants.MaxDonationAmount))
 	}
 
-	if fundDetails.FundStatus != models.IN_PROGRESS {
+	if fundDetails.FundStatus != models.IN_PROGRESS.String() {
 		return systemerrors.ErrFundInactive
 	}
 	return nil

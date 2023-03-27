@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/fatema-moaiyadi/fund-raiser-system/models"
 	systemerrors "github.com/fatema-moaiyadi/fund-raiser-system/system_errors"
 	"github.com/jmoiron/sqlx"
@@ -25,7 +26,8 @@ func NewUserDB(db *sqlx.DB) UserDatabase {
 
 func (ud *userDB) FindUser(filterKey string, filterValue interface{}) (*models.UserInfo, error) {
 	userInfo := new(models.UserInfo)
-	err := ud.database.Get(userInfo, findUserQuery, filterKey, filterValue)
+	query := fmt.Sprintf(findUserQuery, filterKey)
+	err := ud.database.Get(userInfo, query, filterValue)
 
 	if err == sql.ErrNoRows {
 		return nil, systemerrors.ErrUserNotFound

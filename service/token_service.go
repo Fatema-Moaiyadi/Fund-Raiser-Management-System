@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"github.com/fatema-moaiyadi/fund-raiser-system/config"
 	"github.com/golang-jwt/jwt/v4"
 	"time"
@@ -28,7 +27,6 @@ func NewJWTTokenService() TokenService {
 }
 
 func (jt *jwtTokenService) GenerateToken(userId int64, isAdmin bool) (string, error) {
-	fmt.Println(jwt.NewNumericDate(time.Now().Add(time.Minute * time.Duration(config.GetJWTConfig().Duration))))
 	payload := &TokenPayload{
 		UserID:   userId,
 		IsAdmin:  isAdmin,

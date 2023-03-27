@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type DonationRequest struct {
 	DonationAmount   int64  `json:"donation_amount"`
 	DonatedByEmailID string `json:"email_id"`
@@ -26,11 +28,13 @@ func (s DonationAmountStatus) String() string {
 }
 
 type DonationData struct {
-	DonationID           int64                `db:"donation_id"`
-	DonationAmount       int64                `db:"donation_amount"`
-	DonatedInFundID      int64                `db:"donated_in_fund_id"`
-	DonatedByUserID      int64                `db:"donated_by_user_id"`
-	DonationAmountStatus DonationAmountStatus `db:"donation_status"`
+	DonationID           int64     `db:"donation_id"`
+	DonationAmount       int64     `db:"amount"`
+	DonatedInFundID      int64     `db:"donated_in_fund_id"`
+	DonatedByUserID      int64     `db:"donated_by_user_id"`
+	DonationAmountStatus string    `db:"donation_status"`
+	CreatedAt            time.Time `db:"created_at,omitempty" json:"created_at,omitempty"`
+	UpdatedAt            time.Time `db:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
 type DonationResponse struct {

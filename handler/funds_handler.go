@@ -102,7 +102,7 @@ func (fh *fundsHandler) DonateInFund() http.HandlerFunc {
 		}
 
 		tokenPayload := request.Context().Value("claims")
-		payload, ok := tokenPayload.(service.TokenPayload)
+		payload, ok := tokenPayload.(*service.TokenPayload)
 		if !ok {
 			systemerrors.WriteErrorResponse(res, err)
 			return
@@ -125,22 +125,22 @@ func (fh *fundsHandler) DonateInFund() http.HandlerFunc {
 
 		fundDetails, err := fh.fundService.Donate(donationRequest)
 
-		if strings.Contains(err.Error(), systemerrors.ErrLessAmount.Error()) ||
-			strings.Contains(err.Error(), systemerrors.ErrMoreAmount.Error()) {
-			res.WriteHeader(http.StatusBadRequest)
-			errorRes := new(models.ErrorResponse)
-			errorRes.Error.Message = err.Error()
-			errorRes.Error.Status = http.StatusBadRequest
-			errorRes.Code = -1
-
-			response, err := json.Marshal(errorRes)
-			if err != nil {
-				fmt.Fprintf(res, "Decoding error")
-			}
-			res.Write(response)
-		}
-
 		if err != nil {
+			if strings.Contains(err.Error(), systemerrors.ErrLessAmount.Error()) ||
+				strings.Contains(err.Error(), systemerrors.ErrMoreAmount.Error()) {
+				res.WriteHeader(http.StatusBadRequest)
+				errorRes := new(models.ErrorResponse)
+				errorRes.Error.Message = err.Error()
+				errorRes.Error.Status = http.StatusBadRequest
+				errorRes.Code = -1
+
+				response, err := json.Marshal(errorRes)
+				if err != nil {
+					fmt.Fprintf(res, "Decoding error")
+				}
+				res.Write(response)
+				return
+			}
 			systemerrors.WriteErrorResponse(res, err)
 			return
 		}
