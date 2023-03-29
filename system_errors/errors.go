@@ -24,7 +24,7 @@ var (
 	ErrInvalidUpdateRequest        = errors.New("request fields invalid, should not contain spaces")
 	ErrNameFormatInvalid           = errors.New("request fields invalid, first name/ last name should not contain spaces")
 	ErrActiveFunds                 = errors.New("user has ongoing fund raiser(s). Please either delete the fund(s) or wait for it to be completed")
-	ErrInvalidRequest              = errors.New("request fields invalid, should not be blank")
+	ErrInvalidRequest              = errors.New("request field(s) invalid, should not be blank")
 )
 
 func ConvertToUserSpecificError(systemErr error, err string) error {
