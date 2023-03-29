@@ -18,6 +18,7 @@ type UserDatabase interface {
 	FindUser(filterKey string, filterValue interface{}) (*models.UserInfo, error)
 	CreateUser(userDetails *models.UserInfo) error
 	UpdateUserByID(userID int64, updateParams map[string]string) (*models.UpdateUser, error)
+	DeleteUserByID(userID int64) error
 }
 
 func NewUserDB(db *sqlx.DB) UserDatabase {
@@ -112,4 +113,27 @@ func (ud *userDB) UpdateUserByID(userID int64, updateParams map[string]string) (
 	}
 
 	return updatedDetails, nil
+}
+
+func (ud *userDB) DeleteUserByID(userID int64) error {
+	tx, err := ud.database.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(deleteUserByID, time.Now(), userID)
+	if err != nil {
+		e := tx.Rollback()
+		if e != nil {
+			return e
+		}
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

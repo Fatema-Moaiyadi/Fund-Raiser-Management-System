@@ -18,6 +18,7 @@ type UserHandler interface {
 	LoginHandler() http.HandlerFunc
 	CreateUser() http.HandlerFunc
 	UpdateUserInfo() http.HandlerFunc
+	DeleteUserByID() http.HandlerFunc
 }
 
 func NewUserHandler(userService service.UserService) UserHandler {
@@ -148,6 +149,38 @@ func (userHandler *userHandler) UpdateUserInfo() http.HandlerFunc {
 		updateUserResponse.Message = "User updated successfully"
 		updateUserResponse.Data.UpdatedInfo = *updatedInfo
 		response, err := json.Marshal(updateUserResponse)
+		if err != nil {
+			fmt.Fprintf(res, "Decoding error")
+			return
+		}
+		res.Write(response)
+	}
+}
+
+func (userHandler *userHandler) DeleteUserByID() http.HandlerFunc {
+	return func(res http.ResponseWriter, request *http.Request) {
+		res.Header().Set("Content-Type", "application/json")
+
+		deleteUserRequest := new(models.UserIDRequest)
+
+		err := json.NewDecoder(request.Body).Decode(deleteUserRequest)
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		err = userHandler.userService.DeleteUserByID(deleteUserRequest)
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		deleteUserResponse := new(models.DeleteUserResponse)
+		res.WriteHeader(http.StatusOK)
+		deleteUserResponse.Code = 0
+		deleteUserResponse.Message = fmt.Sprintf("User with user id %d deleted successfully", deleteUserRequest.UserID)
+
+		response, err := json.Marshal(deleteUserResponse)
 		if err != nil {
 			fmt.Fprintf(res, "Decoding error")
 			return

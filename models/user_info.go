@@ -9,6 +9,7 @@ type UserInfo struct {
 	LastName  string    `db:"last_name,omitempty" json:"last_name,omitempty"`
 	IsAdmin   bool      `db:"is_admin,omitempty" json:"is_admin,omitempty"`
 	Password  string    `db:"password,omitempty" json:"password,omitempty"`
+	Status    string    `db:"status,omitempty" json:"status,omitempty"`
 	CreatedAt time.Time `db:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt time.Time `db:"updated_at,omitempty" json:"updated_at,omitempty"`
 }

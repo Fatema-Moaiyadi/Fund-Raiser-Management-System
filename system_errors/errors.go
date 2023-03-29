@@ -21,8 +21,10 @@ var (
 	ErrLessAmount                  = errors.New("amount should be greater than")
 	ErrMoreAmount                  = errors.New("amount should be less than")
 	ErrFundInactive                = errors.New("requested fund is inactive")
-	ErrInvalidRequest              = errors.New("request fields invalid, should not contain spaces")
+	ErrInvalidUpdateRequest        = errors.New("request fields invalid, should not contain spaces")
 	ErrNameFormatInvalid           = errors.New("request fields invalid, first name/ last name should not contain spaces")
+	ErrActiveFunds                 = errors.New("user has ongoing fund raiser(s). Please either delete the fund(s) or wait for it to be completed")
+	ErrInvalidRequest              = errors.New("request fields invalid, should not be blank")
 )
 
 func ConvertToUserSpecificError(systemErr error, err string) error {

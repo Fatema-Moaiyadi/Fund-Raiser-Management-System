@@ -20,14 +20,16 @@ func initDependencies() (dependencies, error) {
 
 	jwtTokenService := service.NewJWTTokenService()
 
-	//initializing user flows
-	userDb := database.NewUserDB(db)
-	userService := service.NewUserService(userDb, jwtTokenService)
-	userHandler := handler.NewUserHandler(userService)
-
-	//initializing fund flows
+	//initialising databases
 	fundDB := database.NewFundsDB(db)
+	userDb := database.NewUserDB(db)
+
+	//initializing services
+	userService := service.NewUserService(userDb, jwtTokenService, fundDB)
 	fundService := service.NewFundService(fundDB, userDb)
+
+	//initialising handlers
+	userHandler := handler.NewUserHandler(userService)
 	fundHandler := handler.NewFundsHandler(fundService, userService)
 
 	deps := dependencies{

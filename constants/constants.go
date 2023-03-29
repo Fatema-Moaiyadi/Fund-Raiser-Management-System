@@ -9,6 +9,6 @@ const (
 	PasswordColumnName            = "password"
 	FirstNameColumnName           = "first_name"
 	LastNameColumnName            = "last_name"
-	UpdatedAtColumnName           = "updated_at"
+	UserIDColumnName              = "user_id"
 	ForeignKeyConstraintErrorCode = pq.ErrorCode("23503")
 )

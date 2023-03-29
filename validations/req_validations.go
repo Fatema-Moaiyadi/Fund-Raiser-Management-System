@@ -86,8 +86,15 @@ func ValidateUpdateUserRequest(updateRequest *models.UpdateUser) error {
 	if strings.Contains(updateRequest.FirstName, " ") ||
 		strings.Contains(updateRequest.LastName, " ") ||
 		strings.Contains(updateRequest.Password, " ") {
-		return systemerrors.ErrInvalidRequest
+		return systemerrors.ErrInvalidUpdateRequest
 	}
 
+	return nil
+}
+
+func ValidateUserIDRequest(request *models.UserIDRequest) error {
+	if request.UserID == 0 {
+		return systemerrors.ErrInvalidRequest
+	}
 	return nil
 }

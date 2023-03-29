@@ -12,6 +12,7 @@ import (
 
 type userService struct {
 	userDB       database.UserDatabase
+	fundsDB      database.FundsDB
 	tokenService TokenService
 }
 
@@ -20,12 +21,14 @@ type UserService interface {
 	CreateUser(userDetails *models.UserInfo) error
 	FindUser(filterKey string, filterValue interface{}) (*models.UserInfo, error)
 	UpdateUserByID(userID int64, updateUserReq *models.UpdateUser) (*models.UpdateUser, error)
+	DeleteUserByID(request *models.UserIDRequest) error
 }
 
-func NewUserService(userDB database.UserDatabase, ts TokenService) UserService {
+func NewUserService(userDB database.UserDatabase, ts TokenService, fundsDB database.FundsDB) UserService {
 	return &userService{
 		userDB:       userDB,
 		tokenService: ts,
+		fundsDB:      fundsDB,
 	}
 }
 
@@ -120,4 +123,33 @@ func (us *userService) UpdateUserByID(userID int64, updateUserReq *models.Update
 	}
 
 	return updatedInfo, nil
+}
+
+func (us *userService) DeleteUserByID(request *models.UserIDRequest) error {
+	validationErr := validations.ValidateUserIDRequest(request)
+	if validationErr != nil {
+		return validationErr
+	}
+
+	_, err := us.userDB.FindUser(constants.UserIDColumnName, request.UserID)
+	if err != nil {
+		return err
+	}
+
+	raisedFunds, err := us.fundsDB.GetFundsRaisedByUserID(request.UserID)
+
+	if err != nil {
+		return err
+	}
+
+	if len(raisedFunds) > 0 {
+		return systemerrors.ErrActiveFunds
+	}
+
+	err = us.userDB.DeleteUserByID(request.UserID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

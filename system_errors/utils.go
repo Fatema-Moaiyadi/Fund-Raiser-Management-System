@@ -17,10 +17,13 @@ func WriteErrorResponse(res http.ResponseWriter, err error) {
 	case ErrForbidden:
 		statusCode = http.StatusForbidden
 	case ErrInvalidRequestUserNameEmpty, ErrInvalidRequestEmailEmpty,
-		ErrInvalidRequestFundNameEmpty, ErrAmountInvalid, ErrInvalidRequest, ErrNameFormatInvalid:
+		ErrInvalidRequestFundNameEmpty, ErrAmountInvalid, ErrInvalidUpdateRequest,
+		ErrNameFormatInvalid, ErrInvalidRequest:
 		statusCode = http.StatusBadRequest
 	case ErrUserNotFound, ErrFundNotFound:
 		statusCode = http.StatusNotFound
+	case ErrActiveFunds:
+		statusCode = http.StatusMethodNotAllowed
 	default:
 		statusCode = http.StatusInternalServerError
 	}
