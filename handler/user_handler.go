@@ -17,7 +17,7 @@ type userHandler struct {
 type UserHandler interface {
 	LoginHandler() http.HandlerFunc
 	CreateUser() http.HandlerFunc
-	FindUserByParam() http.HandlerFunc
+	UpdateUserInfo() http.HandlerFunc
 }
 
 func NewUserHandler(userService service.UserService) UserHandler {
@@ -120,8 +120,38 @@ func (userHandler *userHandler) CreateUser() http.HandlerFunc {
 	}
 }
 
-func (userHandler *userHandler) FindUserByParam() http.HandlerFunc {
+func (userHandler *userHandler) UpdateUserInfo() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
+		res.Header().Set("Content-Type", "application/json")
 
+		updateUserRequest := new(models.UpdateUser)
+
+		err := json.NewDecoder(request.Body).Decode(updateUserRequest)
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		tokenPayload := request.Context().Value("claims").(*service.TokenPayload)
+
+		userID := tokenPayload.UserID
+
+		updatedInfo, err := userHandler.userService.UpdateUserByID(userID, updateUserRequest)
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		updateUserResponse := new(models.UpdateUserResponse)
+		res.WriteHeader(http.StatusOK)
+		updateUserResponse.Code = 0
+		updateUserResponse.Message = "User updated successfully"
+		updateUserResponse.Data.UpdatedInfo = *updatedInfo
+		response, err := json.Marshal(updateUserResponse)
+		if err != nil {
+			fmt.Fprintf(res, "Decoding error")
+			return
+		}
+		res.Write(response)
 	}
 }

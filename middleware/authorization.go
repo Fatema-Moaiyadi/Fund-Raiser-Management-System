@@ -34,60 +34,6 @@ func AuthorizeAdmin(tokenSvc service.TokenService, nextReq http.HandlerFunc) htt
 	}
 }
 
-//AuthorizeUserOrAdmin to check xauth for user specific apis
-//will allow or disallow admin too
-/*func AuthorizeUserOrAdmin(tokenSvc service.TokenService, userSvc service.UserService, nextReq http.HandlerFunc, validateFromBody bool) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
-		token, err := readToken(req)
-		if err != nil {
-			systemerrors.WriteErrorResponse(res, err)
-			return
-		}
-
-		payload, err := tokenSvc.VerifyToken(token)
-		if err != nil {
-			systemerrors.WriteErrorResponse(res, systemerrors.ErrInvalidToken)
-			return
-		}
-
-		var userID int64
-
-		if validateFromBody {
-			userAuthReq := new(models.UserAuth)
-			err := json.NewDecoder(req.Body).Decode(userAuthReq)
-			if err != nil {
-				systemerrors.WriteErrorResponse(res, err)
-				return
-			}
-
-			userInfo, err := userSvc.FindUser(constants.EmailColumnName, userAuthReq.EmailID)
-			if err != nil {
-				systemerrors.WriteErrorResponse(res, err)
-				return
-			}
-
-			userID = userInfo.UserID
-		} else {
-			//validate from params
-			routeVariables := mux.Vars(req)
-			id, err := strconv.Atoi(routeVariables["user_id"])
-			userID = int64(id)
-			if err != nil {
-				systemerrors.WriteErrorResponse(res, err)
-				return
-			}
-		}
-
-		if !payload.IsAdmin && userID != payload.UserID {
-			systemerrors.WriteErrorResponse(res, systemerrors.ErrForbidden)
-			return
-		}
-
-		context := context.WithValue(req.Context(), "claims", payload)
-		nextReq.ServeHTTP(res, req.WithContext(context))
-	}
-}*/
-
 //Authorize to check xauth for its validity
 func Authorize(tokenSvc service.TokenService, nextReq http.HandlerFunc) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {

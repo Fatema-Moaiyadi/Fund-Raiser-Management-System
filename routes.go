@@ -19,5 +19,9 @@ func getRoutes(deps dependencies) *mux.Router {
 
 	r.HandleFunc("/donate/{fund_id}", middleware.Authorize(deps.tokenService,
 		deps.fundsHandler.DonateInFund())).Methods("POST")
+
+	r.HandleFunc("/user/update", middleware.Authorize(deps.tokenService,
+		deps.userHandler.UpdateUserInfo())).Methods("PUT")
+	
 	return r
 }

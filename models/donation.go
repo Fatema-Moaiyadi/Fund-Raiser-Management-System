@@ -37,9 +37,17 @@ type DonationData struct {
 	UpdatedAt            time.Time `db:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
+type FundDonationInfo struct {
+	FundName            string `db:"name,omitempty" json:"fund_name,omitempty"`
+	FundStatus          string `db:"status,omitempty" json:"fund_status,omitempty"`
+	AmountDonatedByUser int64  `json:"amount_donated_by_user,omitempty"`
+	TotalAmountRaised   int64  `json:"total_amount_raised,omitempty"`
+	TotalAmount         int64  `db:"fund_amount,omitempty" json:"total_amount,omitempty"`
+}
+
 type DonationResponse struct {
 	Code int `json:"code"`
 	Data struct {
-		FundInfo FundDetailsBrief `json:"donation_info"`
+		FundInfo FundDonationInfo `json:"donation_info"`
 	} `json:"data"`
 }

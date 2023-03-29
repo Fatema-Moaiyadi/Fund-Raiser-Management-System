@@ -17,8 +17,8 @@ type fundsDB struct {
 
 type FundsDB interface {
 	CreateFund(*models.CreateFundRequest, int64) (*models.FundDetails, error)
-	CreateNewDonation(request *models.DonationRequest) error
-	AddAmountToExistingDonation(request *models.DonationRequest) error
+	CreateNewDonation(request *models.DonationRequest, totalRaisedAmount int64, totalFundAmount int64) error
+	AddAmountToExistingDonation(request *models.DonationRequest, totalRaisedAmount int64, totalFundAmount int64) error
 	GetTotalRaisedAmountForFund(fundID int64) (int64, error)
 	GetFundDetailsByID(fundID int64) (*models.FundDetails, error)
 	GetExistingDonationsForFundByUser(fundID, userID int64) ([]*models.DonationData, error)
@@ -47,7 +47,7 @@ func (fdb *fundsDB) CreateFund(fundRequest *models.CreateFundRequest, userID int
 	return fundDetails, nil
 }
 
-func (fdb *fundsDB) CreateNewDonation(request *models.DonationRequest) error {
+func (fdb *fundsDB) CreateNewDonation(request *models.DonationRequest, totalRaisedAmount int64, totalFundAmount int64) error {
 	_, err := fdb.database.Exec(createDonationQuery,
 		request.DonatedInFund,
 		request.DonatedByUserID,
@@ -73,10 +73,14 @@ func (fdb *fundsDB) CreateNewDonation(request *models.DonationRequest) error {
 		}
 	}
 
+	if totalRaisedAmount+request.DonationAmount == totalFundAmount {
+		//TODO: update fund status to DONE
+	}
+
 	return nil
 }
 
-func (fdb *fundsDB) AddAmountToExistingDonation(request *models.DonationRequest) error {
+func (fdb *fundsDB) AddAmountToExistingDonation(request *models.DonationRequest, totalRaisedAmount int64, totalFundAmount int64) error {
 	_, err := fdb.database.Exec(addAmountToExistingDonationQuery,
 		request.DonationAmount,
 		request.DonatedInFund,
@@ -84,6 +88,10 @@ func (fdb *fundsDB) AddAmountToExistingDonation(request *models.DonationRequest)
 
 	if err != nil {
 		return err
+	}
+
+	if totalRaisedAmount+request.DonationAmount == totalFundAmount {
+		//TODO: update fund status to DONE
 	}
 
 	return nil

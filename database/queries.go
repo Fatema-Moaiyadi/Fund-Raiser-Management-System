@@ -1,8 +1,11 @@
 package database
 
 const (
-	findUserQuery   = "SELECT * from users where %s = $1"
-	insertUserQuery = "INSERT INTO users (email_id,name,password,is_admin,created_at,updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING user_id,email_id,name,password,is_admin,created_at,updated_at"
+	findUserQuery              = "SELECT * from users where %s = $1"
+	insertUserQuery            = "INSERT INTO users (email_id,first_name, last_name,password,is_admin,created_at,updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING user_id,email_id,first_name, last_name,password,is_admin,created_at,updated_at"
+	updateUserSetClause        = "UPDATE users SET "
+	whereUserIDClause          = ",updated_at=$%d where user_id=$%d"
+	getUserByIDWithUpdatedInfo = "SELECT %s FROM users where user_id=$1"
 
 	insertFundQuery  = "INSERT INTO funds (raised_by_user_id,name,amount,status,created_at,updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING fund_id,raised_by_user_id,name,amount,status,created_at,updated_at"
 	getFundByIDQuery = "SELECT * from funds where fund_id = $1"

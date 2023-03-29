@@ -16,7 +16,8 @@ func WriteErrorResponse(res http.ResponseWriter, err error) {
 		statusCode = http.StatusUnauthorized
 	case ErrForbidden:
 		statusCode = http.StatusForbidden
-	case ErrInvalidRequestUserNameEmpty, ErrInvalidRequestEmailEmpty, ErrInvalidRequestFundNameEmpty, ErrAmountInvalid:
+	case ErrInvalidRequestUserNameEmpty, ErrInvalidRequestEmailEmpty,
+		ErrInvalidRequestFundNameEmpty, ErrAmountInvalid, ErrInvalidRequest, ErrNameFormatInvalid:
 		statusCode = http.StatusBadRequest
 	case ErrUserNotFound, ErrFundNotFound:
 		statusCode = http.StatusNotFound

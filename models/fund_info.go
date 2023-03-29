@@ -43,14 +43,6 @@ type FundDetails struct {
 	UpdatedAt      time.Time `db:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
-type FundDetailsBrief struct {
-	FundName          string `db:"name,omitempty" json:"fund_name,omitempty"`
-	FundStatus        string `db:"status,omitempty" json:"fund_status,omitempty"`
-	AmountDonated     int64  `json:"amount_donated,omitempty"`
-	TotalAmountRaised int64  `json:"total_amount_raised,omitempty"`
-	TotalAmount       int64  `db:"amount,omitempty" json:"total_amount,omitempty"`
-}
-
 type CreateFundResponse struct {
 	Code int `json:"code"`
 	Data struct {

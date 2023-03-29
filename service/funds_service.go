@@ -14,7 +14,7 @@ type fundService struct {
 
 type FundService interface {
 	CreateFund(fundRequest *models.CreateFundRequest) (*models.FundDetails, error)
-	Donate(request *models.DonationRequest) (*models.FundDetailsBrief, error)
+	Donate(request *models.DonationRequest) (*models.FundDonationInfo, error)
 }
 
 func NewFundService(fundsDB database.FundsDB, userDB database.UserDatabase) FundService {
@@ -43,7 +43,7 @@ func (fs *fundService) CreateFund(fundRequest *models.CreateFundRequest) (*model
 	return fundDetails, nil
 }
 
-func (fs *fundService) Donate(request *models.DonationRequest) (*models.FundDetailsBrief, error) {
+func (fs *fundService) Donate(request *models.DonationRequest) (*models.FundDonationInfo, error) {
 	//get fund details
 	fundDetails, err := fs.fundsDB.GetFundDetailsByID(request.DonatedInFund)
 	if err != nil {
@@ -67,21 +67,21 @@ func (fs *fundService) Donate(request *models.DonationRequest) (*models.FundDeta
 
 	if existingDonations == nil {
 		//no active donations
-		err = fs.fundsDB.CreateNewDonation(request)
+		err = fs.fundsDB.CreateNewDonation(request, totalRaisedAmount, fundDetails.TotalAmount)
 	} else {
-		err = fs.fundsDB.AddAmountToExistingDonation(request)
+		err = fs.fundsDB.AddAmountToExistingDonation(request, totalRaisedAmount, fundDetails.TotalAmount)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	donatedFundDetails := &models.FundDetailsBrief{
-		FundName:          fundDetails.FundName,
-		TotalAmountRaised: totalRaisedAmount + request.DonationAmount,
-		AmountDonated:     request.DonationAmount,
-		TotalAmount:       fundDetails.TotalAmount,
-		FundStatus:        fundDetails.FundStatus,
+	donatedFundDetails := &models.FundDonationInfo{
+		FundName:            fundDetails.FundName,
+		TotalAmountRaised:   totalRaisedAmount + request.DonationAmount,
+		AmountDonatedByUser: request.DonationAmount,
+		TotalAmount:         fundDetails.TotalAmount,
+		FundStatus:          fundDetails.FundStatus,
 	}
 
 	return donatedFundDetails, nil

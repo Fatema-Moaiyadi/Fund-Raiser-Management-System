@@ -19,6 +19,7 @@ type UserService interface {
 	Login(email string, password string) (string, error)
 	CreateUser(userDetails *models.UserInfo) error
 	FindUser(filterKey string, filterValue interface{}) (*models.UserInfo, error)
+	UpdateUserByID(userID int64, updateUserReq *models.UpdateUser) (*models.UpdateUser, error)
 }
 
 func NewUserService(userDB database.UserDatabase, ts TokenService) UserService {
@@ -84,4 +85,39 @@ func (us *userService) FindUser(filterKey string, filterValue interface{}) (*mod
 	}
 
 	return userInfo, nil
+}
+
+func (us *userService) UpdateUserByID(userID int64, updateUserReq *models.UpdateUser) (*models.UpdateUser, error) {
+	err := validations.ValidateUpdateUserRequest(updateUserReq)
+	if err != nil {
+		return nil, err
+	}
+	updateParams := make(map[string]string)
+
+	if updateUserReq.FirstName != "" {
+		updateParams[constants.FirstNameColumnName] = updateUserReq.FirstName
+	}
+
+	if updateUserReq.LastName != "" {
+		updateParams[constants.LastNameColumnName] = updateUserReq.LastName
+	}
+
+	if updateUserReq.Password != "" {
+		hashedPasswordByte, err := bcrypt.GenerateFromPassword([]byte(updateUserReq.Password), 14)
+		if err != nil {
+			return nil, err
+		}
+		updateParams[constants.PasswordColumnName] = string(hashedPasswordByte)
+	}
+
+	updatedInfo, err := us.userDB.UpdateUserByID(userID, updateParams)
+	if err != nil {
+		return nil, err
+	}
+
+	if updatedInfo.Password != "" {
+		updatedInfo.Password = updateUserReq.Password
+	}
+
+	return updatedInfo, nil
 }
