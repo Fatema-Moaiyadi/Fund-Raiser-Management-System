@@ -7,7 +7,9 @@ import (
 	"github.com/fatema-moaiyadi/fund-raiser-system/service"
 	systemerrors "github.com/fatema-moaiyadi/fund-raiser-system/system_errors"
 	"github.com/fatema-moaiyadi/fund-raiser-system/validations"
+	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
 )
 
 type userHandler struct {
@@ -19,6 +21,7 @@ type UserHandler interface {
 	CreateUser() http.HandlerFunc
 	UpdateUserInfo() http.HandlerFunc
 	DeleteUserByID() http.HandlerFunc
+	GetUserInfoByID() http.HandlerFunc
 }
 
 func NewUserHandler(userService service.UserService) UserHandler {
@@ -181,6 +184,44 @@ func (userHandler *userHandler) DeleteUserByID() http.HandlerFunc {
 		deleteUserResponse.Message = fmt.Sprintf("User with user id %d deleted successfully", deleteUserRequest.UserID)
 
 		response, err := json.Marshal(deleteUserResponse)
+		if err != nil {
+			fmt.Fprintf(res, "Decoding error")
+			return
+		}
+		res.Write(response)
+	}
+}
+
+func (userHandler *userHandler) GetUserInfoByID() http.HandlerFunc {
+	return func(res http.ResponseWriter, request *http.Request) {
+		res.Header().Set("Content-Type", "application/json")
+
+		requestParams := mux.Vars(request)
+		userID, err := strconv.Atoi(requestParams["user_id"])
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		tokenPayload := request.Context().Value("claims")
+		payload := tokenPayload.(*service.TokenPayload)
+
+		if payload.UserID != int64(userID) {
+			systemerrors.WriteErrorResponse(res, systemerrors.ErrForbidden)
+			return
+		}
+
+		userDetails, err := userHandler.userService.GetUserInfoByID(int64(userID))
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		userDetailsResponse := new(models.GetUserDetailsByIDResponse)
+		res.WriteHeader(http.StatusOK)
+		userDetailsResponse.Code = 0
+		userDetailsResponse.Data.UserDetails = *userDetails
+		response, err := json.Marshal(userDetailsResponse)
 		if err != nil {
 			fmt.Fprintf(res, "Decoding error")
 			return

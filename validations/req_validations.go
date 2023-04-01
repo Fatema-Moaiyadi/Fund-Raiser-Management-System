@@ -78,6 +78,10 @@ func ValidateDonateRequest(donationRequest models.DonationRequest, amountRaised 
 	if fundDetails.FundStatus != models.IN_PROGRESS.String() {
 		return systemerrors.ErrFundInactive
 	}
+
+	if fundDetails.RaisedByUserID == donationRequest.DonatedByUserID {
+
+	}
 	return nil
 }
 

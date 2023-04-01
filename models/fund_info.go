@@ -33,14 +33,14 @@ type CreateFundRequest struct {
 }
 
 type FundDetails struct {
-	FundID         int64     `db:"fund_id,omitempty" json:"fund_id,omitempty"`
-	RaisedByUserID int64     `db:"raised_by_user_id,omitempty" json:"raised_by_user_id,omitempty"`
-	FundName       string    `db:"name,omitempty" json:"fund_name,omitempty"`
-	AmountRaised   int64     `json:"amount_raised,omitempty"`
-	TotalAmount    int64     `db:"amount,omitempty" json:"total_amount,omitempty"`
-	FundStatus     string    `db:"status,omitempty" json:"fund_status,omitempty"`
-	CreatedAt      time.Time `db:"created_at,omitempty" json:"created_at,omitempty"`
-	UpdatedAt      time.Time `db:"updated_at,omitempty" json:"updated_at,omitempty"`
+	FundID         int64      `db:"fund_id,omitempty" json:"fund_id,omitempty"`
+	RaisedByUserID int64      `db:"raised_by_user_id,omitempty" json:"raised_by_user_id,omitempty"`
+	FundName       string     `db:"name,omitempty" json:"fund_name,omitempty"`
+	AmountRaised   int64      `db:"amount_raised,omitempty" json:"amount_raised,omitempty"`
+	TotalAmount    int64      `db:"amount,omitempty" json:"total_amount,omitempty"`
+	FundStatus     string     `db:"status,omitempty" json:"fund_status,omitempty"`
+	CreatedAt      *time.Time `db:"created_at,omitempty" json:"created_at,omitempty"`
+	UpdatedAt      *time.Time `db:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
 type CreateFundResponse struct {

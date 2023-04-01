@@ -19,6 +19,7 @@ type UserDatabase interface {
 	CreateUser(userDetails *models.UserInfo) error
 	UpdateUserByID(userID int64, updateParams map[string]string) (*models.UpdateUser, error)
 	DeleteUserByID(userID int64) error
+	GetUserInfoByID(userID int64) (*models.UserDetailedInfo, error)
 }
 
 func NewUserDB(db *sqlx.DB) UserDatabase {
@@ -136,4 +137,31 @@ func (ud *userDB) DeleteUserByID(userID int64) error {
 	}
 
 	return nil
+}
+
+func (ud *userDB) GetUserInfoByID(userID int64) (*models.UserDetailedInfo, error) {
+	userDetails := new(models.UserDetailedInfo)
+	err := ud.database.Get(&userDetails.UserInfo, getUserInfoByIDQuery, userID)
+	if err == sql.ErrNoRows {
+		return nil, systemerrors.ErrUserNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	err = ud.database.Select(&userDetails.RaisedFundsInfo, getFundsRaisedByUserIDQuery, userID)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return nil, err
+		}
+	}
+
+	err = ud.database.Select(&userDetails.DonationsInfo, getDonationsByUserIDQuery, userID)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return nil, err
+		}
+	}
+
+	return userDetails, nil
 }

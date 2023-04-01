@@ -25,5 +25,8 @@ func getRoutes(deps dependencies) *mux.Router {
 
 	r.HandleFunc("/user", middleware.AuthorizeAdmin(deps.tokenService,
 		deps.userHandler.DeleteUserByID())).Methods("DELETE")
+
+	r.HandleFunc("/user/{user_id}", middleware.Authorize(deps.tokenService,
+		deps.userHandler.GetUserInfoByID())).Methods("GET")
 	return r
 }
