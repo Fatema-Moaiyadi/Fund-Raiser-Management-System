@@ -20,6 +20,7 @@ type UserDatabase interface {
 	UpdateUserByID(userID int64, updateParams map[string]string) (*models.UpdateUser, error)
 	DeleteUserByID(userID int64) error
 	GetUserInfoByID(userID int64) (*models.UserDetailedInfo, error)
+	GetAllUsersInfo() ([]models.UserDetailedInfo, error)
 }
 
 func NewUserDB(db *sqlx.DB) UserDatabase {
@@ -164,4 +165,35 @@ func (ud *userDB) GetUserInfoByID(userID int64) (*models.UserDetailedInfo, error
 	}
 
 	return userDetails, nil
+}
+
+func (ud *userDB) GetAllUsersInfo() ([]models.UserDetailedInfo, error) {
+	usersInfo := make([]models.UserInfo, 0)
+	err := ud.database.Select(&usersInfo, getAllUserInfoQuery)
+	if err == sql.ErrNoRows {
+		return nil, systemerrors.ErrUserNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	allUserDetails := make([]models.UserDetailedInfo, len(usersInfo))
+	for i, userInfo := range usersInfo {
+		allUserDetails[i].UserInfo = userInfo
+		err = ud.database.Select(&allUserDetails[i].RaisedFundsInfo, getFundsRaisedByUserIDQuery, userInfo.UserID)
+		if err != nil {
+			if err != sql.ErrNoRows {
+				return nil, err
+			}
+		}
+
+		err = ud.database.Select(&allUserDetails[i].DonationsInfo, getDonationsByUserIDQuery, userInfo.UserID)
+		if err != nil {
+			if err != sql.ErrNoRows {
+				return nil, err
+			}
+		}
+	}
+
+	return allUserDetails, nil
 }

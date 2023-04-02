@@ -12,3 +12,10 @@ type GetUserDetailsByIDResponse struct {
 		UserDetails UserDetailedInfo `json:"user_details"`
 	} `json:"data"`
 }
+
+type GetAllUserDetailsResponse struct {
+	Code int `json:"code"`
+	Data struct {
+		AllUsersInfo []UserDetailedInfo `json:"all_users_info"`
+	} `json:"data"`
+}

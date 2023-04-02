@@ -23,6 +23,7 @@ type UserService interface {
 	UpdateUserByID(userID int64, updateUserReq *models.UpdateUser) (*models.UpdateUser, error)
 	DeleteUserByID(request *models.UserIDRequest) error
 	GetUserInfoByID(userID int64) (*models.UserDetailedInfo, error)
+	GetAllUsersInfo() ([]models.UserDetailedInfo, error)
 }
 
 func NewUserService(userDB database.UserDatabase, ts TokenService, fundsDB database.FundsDB) UserService {
@@ -163,4 +164,14 @@ func (us *userService) GetUserInfoByID(userID int64) (*models.UserDetailedInfo, 
 	}
 
 	return userDetails, nil
+}
+
+func (us *userService) GetAllUsersInfo() ([]models.UserDetailedInfo, error) {
+	usersInfo, err := us.userDB.GetAllUsersInfo()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return usersInfo, nil
 }

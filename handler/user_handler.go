@@ -22,6 +22,7 @@ type UserHandler interface {
 	UpdateUserInfo() http.HandlerFunc
 	DeleteUserByID() http.HandlerFunc
 	GetUserInfoByID() http.HandlerFunc
+	GetAllUsersInfo() http.HandlerFunc
 }
 
 func NewUserHandler(userService service.UserService) UserHandler {
@@ -222,6 +223,29 @@ func (userHandler *userHandler) GetUserInfoByID() http.HandlerFunc {
 		userDetailsResponse.Code = 0
 		userDetailsResponse.Data.UserDetails = *userDetails
 		response, err := json.Marshal(userDetailsResponse)
+		if err != nil {
+			fmt.Fprintf(res, "Decoding error")
+			return
+		}
+		res.Write(response)
+	}
+}
+
+func (userHandler *userHandler) GetAllUsersInfo() http.HandlerFunc {
+	return func(res http.ResponseWriter, request *http.Request) {
+		res.Header().Set("Content-Type", "application/json")
+
+		allUserDetails, err := userHandler.userService.GetAllUsersInfo()
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		allUserDetailsResponse := new(models.GetAllUserDetailsResponse)
+		res.WriteHeader(http.StatusOK)
+		allUserDetailsResponse.Code = 0
+		allUserDetailsResponse.Data.AllUsersInfo = allUserDetails
+		response, err := json.Marshal(allUserDetailsResponse)
 		if err != nil {
 			fmt.Fprintf(res, "Decoding error")
 			return

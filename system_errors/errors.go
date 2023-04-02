@@ -26,6 +26,7 @@ var (
 	ErrActiveFunds                 = errors.New("user has ongoing fund raiser(s). Please either delete the fund(s) or wait for it to be completed")
 	ErrInvalidRequest              = errors.New("request field(s) invalid, should not be blank")
 	ErrInvalidDonationRequest      = errors.New("cannot donate in fund raised by yourself")
+	ErrNoUsers                     = errors.New("no users exist in system")
 )
 
 func ConvertToUserSpecificError(systemErr error, err string) error {

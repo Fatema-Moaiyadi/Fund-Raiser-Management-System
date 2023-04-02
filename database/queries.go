@@ -8,6 +8,7 @@ const (
 	whereUserIDClause          = ",updated_at=$%d where user_id=$%d"
 	getUserByIDWithUpdatedInfo = "SELECT %s FROM users where user_id=$1"
 	deleteUserByID             = "UPDATE users SET status='INACTIVE',updated_at=$1 where user_id=$2"
+	getAllUserInfoQuery        = "SELECT user_id, email_id, first_name, last_name from users where status='ACTIVE'"
 
 	insertFundQuery            = "INSERT INTO funds (raised_by_user_id,name,amount,status,created_at,updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING fund_id,raised_by_user_id,name,amount,status,created_at,updated_at"
 	getFundByIDQuery           = "SELECT * from funds where fund_id = $1"
