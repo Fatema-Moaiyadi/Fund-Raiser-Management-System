@@ -96,9 +96,38 @@ func ValidateUpdateUserRequest(updateRequest *models.UpdateUser) error {
 	return nil
 }
 
-func ValidateUserIDRequest(request *models.UserIDRequest) error {
+func ValidateUserIDInRequest(request *models.UserIDRequest) error {
 	if request.UserID == 0 {
 		return systemerrors.ErrInvalidRequest
+	}
+	return nil
+}
+
+func ValidateFilterKeysInRequest(filters map[string]interface{}) error {
+	filtersValid := true
+	for key, _ := range filters {
+		if key == constants.EmailColumnName || key == constants.UserIDColumnName {
+			continue
+		} else if key == constants.FirstNameColumnName {
+			_, ok := filters[constants.LastNameColumnName]
+			if !ok {
+				filtersValid = false
+				break
+			}
+		} else if key == constants.LastNameColumnName {
+			_, ok := filters[constants.FirstNameColumnName]
+			if !ok {
+				filtersValid = false
+				break
+			}
+		} else {
+			filtersValid = false
+			break
+		}
+	}
+
+	if !filtersValid {
+		return systemerrors.ErrInvalidFilterRequest
 	}
 	return nil
 }

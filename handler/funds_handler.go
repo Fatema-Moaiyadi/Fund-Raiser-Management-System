@@ -107,8 +107,8 @@ func (fh *fundsHandler) DonateInFund() http.HandlerFunc {
 			systemerrors.WriteErrorResponse(res, err)
 			return
 		}
+
 		userInfo, err := fh.userService.FindUser(constants.EmailColumnName, donationRequest.DonatedByEmailID)
-		//TODO: Add error checks
 		if err != nil {
 			systemerrors.WriteErrorResponse(res, err)
 			return

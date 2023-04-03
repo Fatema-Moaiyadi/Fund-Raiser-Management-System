@@ -1,8 +1,9 @@
 package database
 
 const (
-	findUserQuery              = "SELECT * from users where %s = $1 AND status = 'ACTIVE'"
-	getUserInfoByIDQuery       = "SELECT email_id, first_name, last_name from users where user_id=$1 AND status='ACTIVE'"
+	getUserQuery               = "SELECT * from users where %s = $1 AND status = 'ACTIVE'"
+	findUserForLoginQuery      = "SELECT * from users where email_id = $1 AND status = 'ACTIVE'"
+	getUserInfoByIDQuery       = "SELECT user_id,email_id, first_name, last_name from users where %s AND status='ACTIVE'"
 	insertUserQuery            = "INSERT INTO users (email_id,first_name, last_name,password,is_admin,status,created_at,updated_at) VALUES ($1, $2, $3, $4, $5, 'ACTIVE', $6, $7) RETURNING user_id,email_id,first_name, last_name,password,is_admin,created_at,updated_at"
 	updateUserSetClause        = "UPDATE users SET "
 	whereUserIDClause          = ",updated_at=$%d where user_id=$%d"

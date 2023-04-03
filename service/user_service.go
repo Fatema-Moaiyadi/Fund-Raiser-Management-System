@@ -22,7 +22,7 @@ type UserService interface {
 	FindUser(filterKey string, filterValue interface{}) (*models.UserInfo, error)
 	UpdateUserByID(userID int64, updateUserReq *models.UpdateUser) (*models.UpdateUser, error)
 	DeleteUserByID(request *models.UserIDRequest) error
-	GetUserInfoByID(userID int64) (*models.UserDetailedInfo, error)
+	GetUserInfoByFilters(filterParams map[string]interface{}) (*models.UserDetailedInfo, error)
 	GetAllUsersInfo() ([]models.UserDetailedInfo, error)
 }
 
@@ -35,7 +35,7 @@ func NewUserService(userDB database.UserDatabase, ts TokenService, fundsDB datab
 }
 
 func (us *userService) Login(email string, password string) (string, error) {
-	userInfo, err := us.userDB.FindUser(constants.EmailColumnName, email)
+	userInfo, err := us.userDB.FindUserForLogin(email)
 	if err != nil {
 		return "", err
 	}
@@ -128,7 +128,7 @@ func (us *userService) UpdateUserByID(userID int64, updateUserReq *models.Update
 }
 
 func (us *userService) DeleteUserByID(request *models.UserIDRequest) error {
-	validationErr := validations.ValidateUserIDRequest(request)
+	validationErr := validations.ValidateUserIDInRequest(request)
 	if validationErr != nil {
 		return validationErr
 	}
@@ -156,8 +156,13 @@ func (us *userService) DeleteUserByID(request *models.UserIDRequest) error {
 	return nil
 }
 
-func (us *userService) GetUserInfoByID(userID int64) (*models.UserDetailedInfo, error) {
-	userDetails, err := us.userDB.GetUserInfoByID(userID)
+func (us *userService) GetUserInfoByFilters(filterParams map[string]interface{}) (*models.UserDetailedInfo, error) {
+	err := validations.ValidateFilterKeysInRequest(filterParams)
+	if err != nil {
+		return nil, err
+	}
+
+	userDetails, err := us.userDB.GetUserInfoByFilters(filterParams)
 
 	if err != nil {
 		return nil, err

@@ -16,10 +16,11 @@ type userDB struct {
 
 type UserDatabase interface {
 	FindUser(filterKey string, filterValue interface{}) (*models.UserInfo, error)
+	FindUserForLogin(emailID string) (*models.UserInfo, error)
 	CreateUser(userDetails *models.UserInfo) error
 	UpdateUserByID(userID int64, updateParams map[string]string) (*models.UpdateUser, error)
 	DeleteUserByID(userID int64) error
-	GetUserInfoByID(userID int64) (*models.UserDetailedInfo, error)
+	GetUserInfoByFilters(filterParams map[string]interface{}) (*models.UserDetailedInfo, error)
 	GetAllUsersInfo() ([]models.UserDetailedInfo, error)
 }
 
@@ -29,11 +30,26 @@ func NewUserDB(db *sqlx.DB) UserDatabase {
 	}
 }
 
+func (ud *userDB) FindUserForLogin(emailID string) (*models.UserInfo, error) {
+	userInfo := new(models.UserInfo)
+	err := ud.database.Get(userInfo, findUserForLoginQuery, emailID)
+
+	if err == sql.ErrNoRows {
+		return nil, systemerrors.ErrUserNotFound
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return userInfo, nil
+}
+
 func (ud *userDB) FindUser(filterKey string, filterValue interface{}) (*models.UserInfo, error) {
 	userInfo := new(models.UserInfo)
-	query := fmt.Sprintf(findUserQuery, filterKey)
-	err := ud.database.Get(userInfo, query, filterValue)
 
+	query := fmt.Sprintf(getUserQuery, filterKey)
+	err := ud.database.Get(userInfo, query, filterValue)
 	if err == sql.ErrNoRows {
 		return nil, systemerrors.ErrUserNotFound
 	}
@@ -140,9 +156,23 @@ func (ud *userDB) DeleteUserByID(userID int64) error {
 	return nil
 }
 
-func (ud *userDB) GetUserInfoByID(userID int64) (*models.UserDetailedInfo, error) {
+func (ud *userDB) GetUserInfoByFilters(filterParams map[string]interface{}) (*models.UserDetailedInfo, error) {
 	userDetails := new(models.UserDetailedInfo)
-	err := ud.database.Get(&userDetails.UserInfo, getUserInfoByIDQuery, userID)
+
+	var (
+		whereClause  []string
+		filterValues []interface{}
+		i            = 1
+	)
+	for key, value := range filterParams {
+		whereClause = append(whereClause, fmt.Sprintf("%s = $%d", key, i))
+		i++
+		filterValues = append(filterValues, value)
+	}
+
+	query := fmt.Sprintf(getUserInfoByIDQuery, strings.Join(whereClause, " AND "))
+
+	err := ud.database.Get(&userDetails.UserInfo, query, filterValues...)
 	if err == sql.ErrNoRows {
 		return nil, systemerrors.ErrUserNotFound
 	}
@@ -150,14 +180,14 @@ func (ud *userDB) GetUserInfoByID(userID int64) (*models.UserDetailedInfo, error
 		return nil, err
 	}
 
-	err = ud.database.Select(&userDetails.RaisedFundsInfo, getFundsRaisedByUserIDQuery, userID)
+	err = ud.database.Select(&userDetails.RaisedFundsInfo, getFundsRaisedByUserIDQuery, userDetails.UserInfo.UserID)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return nil, err
 		}
 	}
 
-	err = ud.database.Select(&userDetails.DonationsInfo, getDonationsByUserIDQuery, userID)
+	err = ud.database.Select(&userDetails.DonationsInfo, getDonationsByUserIDQuery, userDetails.UserInfo.UserID)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return nil, err

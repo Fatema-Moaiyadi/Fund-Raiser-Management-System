@@ -27,6 +27,7 @@ var (
 	ErrInvalidRequest              = errors.New("request field(s) invalid, should not be blank")
 	ErrInvalidDonationRequest      = errors.New("cannot donate in fund raised by yourself")
 	ErrNoUsers                     = errors.New("no users exist in system")
+	ErrInvalidFilterRequest        = errors.New("invalid filter parameter")
 )
 
 func ConvertToUserSpecificError(systemErr error, err string) error {

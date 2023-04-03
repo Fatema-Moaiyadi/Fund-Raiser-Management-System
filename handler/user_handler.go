@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/fatema-moaiyadi/fund-raiser-system/constants"
 	"github.com/fatema-moaiyadi/fund-raiser-system/models"
 	"github.com/fatema-moaiyadi/fund-raiser-system/service"
 	systemerrors "github.com/fatema-moaiyadi/fund-raiser-system/system_errors"
@@ -23,6 +24,7 @@ type UserHandler interface {
 	DeleteUserByID() http.HandlerFunc
 	GetUserInfoByID() http.HandlerFunc
 	GetAllUsersInfo() http.HandlerFunc
+	GetUserInfoByFilters() http.HandlerFunc
 }
 
 func NewUserHandler(userService service.UserService) UserHandler {
@@ -212,7 +214,9 @@ func (userHandler *userHandler) GetUserInfoByID() http.HandlerFunc {
 			return
 		}
 
-		userDetails, err := userHandler.userService.GetUserInfoByID(int64(userID))
+		filterParams := make(map[string]interface{})
+		filterParams[constants.UserIDColumnName] = int64(userID)
+		userDetails, err := userHandler.userService.GetUserInfoByFilters(filterParams)
 		if err != nil {
 			systemerrors.WriteErrorResponse(res, err)
 			return
@@ -246,6 +250,46 @@ func (userHandler *userHandler) GetAllUsersInfo() http.HandlerFunc {
 		allUserDetailsResponse.Code = 0
 		allUserDetailsResponse.Data.AllUsersInfo = allUserDetails
 		response, err := json.Marshal(allUserDetailsResponse)
+		if err != nil {
+			fmt.Fprintf(res, "Decoding error")
+			return
+		}
+		res.Write(response)
+	}
+}
+
+func (userHandler *userHandler) GetUserInfoByFilters() http.HandlerFunc {
+	return func(res http.ResponseWriter, request *http.Request) {
+		res.Header().Set("Content-Type", "application/json")
+
+		filterParams := make(map[string]interface{})
+
+		emailID := request.URL.Query().Get(constants.EmailColumnName)
+		if emailID != "" {
+			filterParams[constants.EmailColumnName] = emailID
+		}
+
+		firstName := request.URL.Query().Get(constants.FirstNameColumnName)
+		if firstName != "" {
+			filterParams[constants.FirstNameColumnName] = firstName
+		}
+
+		lastName := request.URL.Query().Get(constants.LastNameColumnName)
+		if lastName != "" {
+			filterParams[constants.LastNameColumnName] = lastName
+		}
+
+		userDetails, err := userHandler.userService.GetUserInfoByFilters(filterParams)
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		userDetailsResponse := new(models.GetUserDetailsByIDResponse)
+		res.WriteHeader(http.StatusOK)
+		userDetailsResponse.Code = 0
+		userDetailsResponse.Data.UserDetails = *userDetails
+		response, err := json.Marshal(userDetailsResponse)
 		if err != nil {
 			fmt.Fprintf(res, "Decoding error")
 			return
