@@ -105,6 +105,11 @@ func ValidateUserIDInRequest(request *models.UserIDRequest) error {
 
 func ValidateFilterKeysInRequest(filters map[string]interface{}) error {
 	filtersValid := true
+
+	if len(filters) == 0 {
+		return systemerrors.ErrInvalidFilterRequest
+	}
+
 	for key, _ := range filters {
 		if key == constants.EmailColumnName || key == constants.UserIDColumnName {
 			continue
