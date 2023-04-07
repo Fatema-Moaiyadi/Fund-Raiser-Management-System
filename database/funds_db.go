@@ -175,7 +175,7 @@ func (fdb *fundsDB) GetFundsRaisedByUserID(userID int64) ([]*models.FundDetails,
 func (fdb *fundsDB) GetAllActiveFunds() ([]models.ActiveFundDetails, error) {
 	var activeFunds []models.ActiveFundDetails
 
-	err := fdb.database.Select(&activeFunds, getAllActiveFunds)
+	err := fdb.database.Select(&activeFunds, getAllActiveFundsWithUserAndDonationsInfo)
 	if err == sql.ErrNoRows {
 		return nil, systemerrors.ErrNoActiveFunds
 	}
