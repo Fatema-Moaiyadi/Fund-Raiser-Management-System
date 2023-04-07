@@ -76,3 +76,8 @@ type UpdateFundResponse struct {
 		UpdatedInfo UpdateFund `json:"updated_info"`
 	} `json:"data"`
 }
+
+type DeleteFundResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}

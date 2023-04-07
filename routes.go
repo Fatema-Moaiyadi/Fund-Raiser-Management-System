@@ -23,7 +23,7 @@ func getRoutes(deps dependencies) *mux.Router {
 	r.HandleFunc("/user/update", middleware.Authorize(deps.tokenService,
 		deps.userHandler.UpdateUserInfo())).Methods("PUT")
 
-	r.HandleFunc("/user", middleware.AuthorizeAdmin(deps.tokenService,
+	r.HandleFunc("/user/{user_id}", middleware.AuthorizeAdmin(deps.tokenService,
 		deps.userHandler.DeleteUserByID())).Methods("DELETE")
 
 	r.HandleFunc("/user/{user_id}", middleware.Authorize(deps.tokenService,
@@ -40,5 +40,8 @@ func getRoutes(deps dependencies) *mux.Router {
 
 	r.HandleFunc("/fund/{fund_id}", middleware.AuthorizeAdmin(deps.tokenService,
 		deps.fundsHandler.UpdateFund())).Methods("PUT")
+
+	r.HandleFunc("/fund/{fund_id}", middleware.AuthorizeAdmin(deps.tokenService,
+		deps.fundsHandler.DeleteFund())).Methods("DELETE")
 	return r
 }

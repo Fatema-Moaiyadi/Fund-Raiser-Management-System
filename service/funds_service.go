@@ -17,6 +17,7 @@ type FundService interface {
 	Donate(request *models.DonationRequest) (*models.FundDonationInfo, error)
 	GetAllActiveFunds() ([]models.ActiveFundDetails, error)
 	UpdateFundByID(fundID int64, updateFundRequest *models.UpdateFund) (*models.UpdateFund, error)
+	DeleteFundByID(fundID int64) error
 }
 
 func NewFundService(fundsDB database.FundsDB, userDB database.UserDatabase) FundService {
@@ -108,10 +109,20 @@ func (fs *fundService) UpdateFundByID(fundID int64, updateFundRequest *models.Up
 		updateParams[constants.FundNameColumnName] = updateFundRequest.FundName
 	}
 
-	updateFundResponse, err := fs.fundsDB.UpdateFund(updateParams, fundID)
+	updateFundResponse, err := fs.fundsDB.UpdateFundByID(updateParams, fundID)
 	if err != nil {
 		return nil, err
 	}
 
 	return updateFundResponse, nil
+}
+
+func (fs *fundService) DeleteFundByID(fundID int64) error {
+	err := fs.fundsDB.DeleteFundByID(fundID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -21,7 +21,7 @@ type UserService interface {
 	CreateUser(userDetails *models.UserInfo) error
 	FindUser(filterKey string, filterValue interface{}) (*models.UserInfo, error)
 	UpdateUserByID(userID int64, updateUserReq *models.UpdateUser) (*models.UpdateUser, error)
-	DeleteUserByID(request *models.UserIDRequest) error
+	DeleteUserByID(userID int64) error
 	GetUserInfoByFilters(filterParams map[string]interface{}) (*models.UserDetailedInfo, error)
 	GetAllUsersInfo() ([]models.UserDetailedInfo, error)
 }
@@ -127,18 +127,8 @@ func (us *userService) UpdateUserByID(userID int64, updateUserReq *models.Update
 	return updatedInfo, nil
 }
 
-func (us *userService) DeleteUserByID(request *models.UserIDRequest) error {
-	validationErr := validations.ValidateUserIDInRequest(request)
-	if validationErr != nil {
-		return validationErr
-	}
-
-	_, err := us.userDB.FindUser(constants.UserIDColumnName, request.UserID)
-	if err != nil {
-		return err
-	}
-
-	raisedFunds, err := us.fundsDB.GetFundsRaisedByUserID(request.UserID)
+func (us *userService) DeleteUserByID(userID int64) error {
+	raisedFunds, err := us.fundsDB.GetFundsRaisedByUserID(userID)
 
 	if err != nil {
 		return err
@@ -148,7 +138,7 @@ func (us *userService) DeleteUserByID(request *models.UserIDRequest) error {
 		return systemerrors.ErrActiveFunds
 	}
 
-	err = us.userDB.DeleteUserByID(request.UserID)
+	err = us.userDB.DeleteUserByID(userID)
 	if err != nil {
 		return err
 	}

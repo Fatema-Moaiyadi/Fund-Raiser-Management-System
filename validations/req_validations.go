@@ -96,13 +96,6 @@ func ValidateUpdateUserRequest(updateRequest *models.UpdateUser) error {
 	return nil
 }
 
-func ValidateUserIDInRequest(request *models.UserIDRequest) error {
-	if request.UserID == 0 {
-		return systemerrors.ErrInvalidRequest
-	}
-	return nil
-}
-
 func ValidateFilterKeysInRequest(filters map[string]interface{}) error {
 	filtersValid := true
 

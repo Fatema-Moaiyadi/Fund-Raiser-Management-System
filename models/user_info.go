@@ -20,3 +20,8 @@ type UserInfoResponse struct {
 		UserInfo UserInfo `json:"user_info"`
 	} `json:"data"`
 }
+
+type DeleteUserResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}

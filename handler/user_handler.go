@@ -155,15 +155,13 @@ func (userHandler *userHandler) DeleteUserByID() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		res.Header().Set("Content-Type", "application/json")
 
-		deleteUserRequest := new(models.UserIDRequest)
-
-		err := json.NewDecoder(request.Body).Decode(deleteUserRequest)
+		userID, err := strconv.Atoi(mux.Vars(request)["fund_id"])
 		if err != nil {
 			systemerrors.WriteErrorResponse(res, err)
 			return
 		}
 
-		err = userHandler.userService.DeleteUserByID(deleteUserRequest)
+		err = userHandler.userService.DeleteUserByID(int64(userID))
 		if err != nil {
 			systemerrors.WriteErrorResponse(res, err)
 			return
@@ -172,7 +170,7 @@ func (userHandler *userHandler) DeleteUserByID() http.HandlerFunc {
 		deleteUserResponse := new(models.DeleteUserResponse)
 		res.WriteHeader(http.StatusOK)
 		deleteUserResponse.Code = 0
-		deleteUserResponse.Message = fmt.Sprintf("User with user id %d deleted successfully", deleteUserRequest.UserID)
+		deleteUserResponse.Message = fmt.Sprintf("User with user id %d deleted successfully", userID)
 
 		response, err := json.Marshal(deleteUserResponse)
 		if err != nil {

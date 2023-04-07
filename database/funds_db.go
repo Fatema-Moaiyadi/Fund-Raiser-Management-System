@@ -25,7 +25,8 @@ type FundsDB interface {
 	GetExistingDonationsForFundByUser(fundID, userID int64) ([]*models.DonationData, error)
 	GetFundsRaisedByUserID(userID int64) ([]*models.FundDetails, error)
 	GetAllActiveFunds() ([]models.ActiveFundDetails, error)
-	UpdateFund(updateParams map[string]interface{}, fundID int64) (*models.UpdateFund, error)
+	UpdateFundByID(updateParams map[string]interface{}, fundID int64) (*models.UpdateFund, error)
+	DeleteFundByID(fundID int64) error
 }
 
 func NewFundsDB(db *sqlx.DB) FundsDB {
@@ -176,7 +177,7 @@ func (fdb *fundsDB) GetAllActiveFunds() ([]models.ActiveFundDetails, error) {
 	return activeFunds, nil
 }
 
-func (fdb *fundsDB) UpdateFund(updateParams map[string]interface{}, fundID int64) (*models.UpdateFund, error) {
+func (fdb *fundsDB) UpdateFundByID(updateParams map[string]interface{}, fundID int64) (*models.UpdateFund, error) {
 	var (
 		setValues []interface{}
 		setKeys   []string
@@ -230,4 +231,45 @@ func (fdb *fundsDB) UpdateFund(updateParams map[string]interface{}, fundID int64
 	}
 
 	return updatedInfo, nil
+}
+
+func (fdb *fundsDB) DeleteFundByID(fundID int64) error {
+	tx, err := fdb.database.Begin()
+	if err != nil {
+		return err
+	}
+
+	result, err := tx.Exec(deleteFundByID, time.Now(), fundID)
+	affectedRows, e := result.RowsAffected()
+	if e != nil {
+		return e
+	}
+
+	if affectedRows == 0 {
+		return systemerrors.ErrFundNotFound
+	}
+	if err != nil {
+		e := tx.Rollback()
+		if e != nil {
+			return e
+		}
+		return err
+	}
+
+	//if fund will be deleted, all donations should be refunded
+	_, err = tx.Exec(updateDonationStatusToRefund, time.Now(), fundID)
+	if err != nil {
+		e := tx.Rollback()
+		if e != nil {
+			return e
+		}
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

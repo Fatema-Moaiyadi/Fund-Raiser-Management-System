@@ -23,6 +23,7 @@ type FundsHandler interface {
 	DonateInFund() http.HandlerFunc
 	GetAllActiveFunds() http.HandlerFunc
 	UpdateFund() http.HandlerFunc
+	DeleteFund() http.HandlerFunc
 }
 
 func NewFundsHandler(fundService service.FundService, userService service.UserService) FundsHandler {
@@ -194,6 +195,36 @@ func (fh *fundsHandler) UpdateFund() http.HandlerFunc {
 		updatedFundResponse.Data.UpdatedInfo = *updatedDetails
 
 		response, err := json.Marshal(updatedFundResponse)
+		if err != nil {
+			fmt.Fprintf(res, "Decoding error")
+			return
+		}
+
+		res.Write(response)
+	}
+}
+
+func (fh *fundsHandler) DeleteFund() http.HandlerFunc {
+	return func(res http.ResponseWriter, request *http.Request) {
+		res.Header().Set("Content-Type", "application/json")
+
+		fundID, err := strconv.Atoi(mux.Vars(request)["fund_id"])
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		err = fh.fundService.DeleteFundByID(int64(fundID))
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		deleteFundResponse := new(models.DeleteFundResponse)
+
+		deleteFundResponse.Code = 0
+		deleteFundResponse.Message = fmt.Sprintf("Fund with fund id %d deleted successfully", fundID)
+		response, err := json.Marshal(deleteFundResponse)
 		if err != nil {
 			fmt.Fprintf(res, "Decoding error")
 			return

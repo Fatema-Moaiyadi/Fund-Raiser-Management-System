@@ -139,7 +139,16 @@ func (ud *userDB) DeleteUserByID(userID int64) error {
 		return err
 	}
 
-	_, err = tx.Exec(deleteUserByID, time.Now(), userID)
+	result, err := tx.Exec(deleteUserByID, time.Now(), userID)
+	affectedRows, e := result.RowsAffected()
+	if e != nil {
+		return e
+	}
+
+	if affectedRows == 0 {
+		return systemerrors.ErrUserNotFound
+	}
+
 	if err != nil {
 		e := tx.Rollback()
 		if e != nil {
