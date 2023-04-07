@@ -49,3 +49,17 @@ type CreateFundResponse struct {
 		FundInfo FundDetails `json:"fund_info"`
 	} `json:"data"`
 }
+
+type ActiveFundDetails struct {
+	RaisedBy     string `db:"raised_by,omitempty" json:"raised_by_user_id,omitempty"`
+	FundName     string `db:"name,omitempty" json:"fund_name,omitempty"`
+	AmountRaised *int64 `db:"amount_raised,omitempty" json:"amount_raised,omitempty"`
+	TotalAmount  int64  `db:"amount,omitempty" json:"total_amount,omitempty"`
+}
+
+type ActiveFundDetailsResponse struct {
+	Code int `json:"code"`
+	Data struct {
+		FundsInfo []ActiveFundDetails `json:"funds_info"`
+	} `json:"data"`
+}

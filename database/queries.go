@@ -14,6 +14,7 @@ const (
 	insertFundQuery            = "INSERT INTO funds (raised_by_user_id,name,amount,status,created_at,updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING fund_id,raised_by_user_id,name,amount,status,created_at,updated_at"
 	getFundByIDQuery           = "SELECT * from funds where fund_id = $1"
 	getActiveFundsRaisedByUser = "SELECT * from funds where raised_by_user_id = $1 AND status = 'IN_PROGRESS'"
+	getAllActiveFunds          = "SELECT funds.name, funds.amount, sum(donation.amount) as amount_raised, users.email_id as raised_by from funds left join donation on funds.fund_id = donation.donated_in_fund_id inner join users on funds.raised_by_user_id = users.user_id where funds.status='IN_PROGRESS' group by funds.name,funds.amount,users.email_id;"
 
 	createDonationQuery                = "INSERT INTO donation (donated_in_fund_id, donated_by_user_id, amount, donation_status, created_at,updated_at) VALUES ($1, $2, $3, $4, $5, $6)"
 	addAmountToExistingDonationQuery   = "UPDATE donation SET amount = amount+$1 where donated_in_fund_id=$2 AND donated_by_user_id=$3 AND donation_status = 'PAID'"

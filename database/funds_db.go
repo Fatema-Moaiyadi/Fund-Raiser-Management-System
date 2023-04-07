@@ -23,6 +23,7 @@ type FundsDB interface {
 	GetFundDetailsByID(fundID int64) (*models.FundDetails, error)
 	GetExistingDonationsForFundByUser(fundID, userID int64) ([]*models.DonationData, error)
 	GetFundsRaisedByUserID(userID int64) ([]*models.FundDetails, error)
+	GetAllActiveFunds() ([]models.ActiveFundDetails, error)
 }
 
 func NewFundsDB(db *sqlx.DB) FundsDB {
@@ -156,4 +157,19 @@ func (fdb *fundsDB) GetFundsRaisedByUserID(userID int64) ([]*models.FundDetails,
 	}
 
 	return raisedFunds, nil
+}
+
+func (fdb *fundsDB) GetAllActiveFunds() ([]models.ActiveFundDetails, error) {
+	var activeFunds []models.ActiveFundDetails
+
+	err := fdb.database.Select(&activeFunds, getAllActiveFunds)
+	if err == sql.ErrNoRows {
+		return nil, systemerrors.ErrNoActiveFunds
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return activeFunds, nil
 }

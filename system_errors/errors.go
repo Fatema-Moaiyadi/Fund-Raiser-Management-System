@@ -28,6 +28,7 @@ var (
 	ErrInvalidDonationRequest      = errors.New("cannot donate in fund raised by yourself")
 	ErrNoUsers                     = errors.New("no users exist in system")
 	ErrInvalidFilterRequest        = errors.New("invalid filter parameter")
+	ErrNoActiveFunds               = errors.New("no active funds exist in system")
 )
 
 func ConvertToUserSpecificError(systemErr error, err string) error {

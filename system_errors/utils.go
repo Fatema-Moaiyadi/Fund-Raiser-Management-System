@@ -20,7 +20,7 @@ func WriteErrorResponse(res http.ResponseWriter, err error) {
 		ErrInvalidRequestFundNameEmpty, ErrAmountInvalid, ErrInvalidUpdateRequest,
 		ErrNameFormatInvalid, ErrInvalidRequest, ErrInvalidDonationRequest:
 		statusCode = http.StatusBadRequest
-	case ErrUserNotFound, ErrFundNotFound, ErrNoUsers:
+	case ErrUserNotFound, ErrFundNotFound, ErrNoUsers, ErrNoActiveFunds:
 		statusCode = http.StatusNotFound
 	case ErrActiveFunds:
 		statusCode = http.StatusMethodNotAllowed

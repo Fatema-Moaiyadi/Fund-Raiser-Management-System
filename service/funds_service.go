@@ -15,6 +15,7 @@ type fundService struct {
 type FundService interface {
 	CreateFund(fundRequest *models.CreateFundRequest) (*models.FundDetails, error)
 	Donate(request *models.DonationRequest) (*models.FundDonationInfo, error)
+	GetAllActiveFunds() ([]models.ActiveFundDetails, error)
 }
 
 func NewFundService(fundsDB database.FundsDB, userDB database.UserDatabase) FundService {
@@ -85,4 +86,13 @@ func (fs *fundService) Donate(request *models.DonationRequest) (*models.FundDona
 	}
 
 	return donatedFundDetails, nil
+}
+
+func (fs *fundService) GetAllActiveFunds() ([]models.ActiveFundDetails, error) {
+	activeFunds, err := fs.fundsDB.GetAllActiveFunds()
+	if err != nil {
+		return nil, err
+	}
+
+	return activeFunds, nil
 }

@@ -21,6 +21,7 @@ type fundsHandler struct {
 type FundsHandler interface {
 	CreateFund() http.HandlerFunc
 	DonateInFund() http.HandlerFunc
+	GetAllActiveFunds() http.HandlerFunc
 }
 
 func NewFundsHandler(fundService service.FundService, userService service.UserService) FundsHandler {
@@ -151,6 +152,30 @@ func (fh *fundsHandler) DonateInFund() http.HandlerFunc {
 		createFundResponse.Code = 0
 		createFundResponse.Data.FundInfo = *fundDetails
 		response, err := json.Marshal(createFundResponse)
+		if err != nil {
+			fmt.Fprintf(res, "Decoding error")
+			return
+		}
+		res.Write(response)
+	}
+}
+
+func (fh *fundsHandler) GetAllActiveFunds() http.HandlerFunc {
+	return func(res http.ResponseWriter, request *http.Request) {
+		res.Header().Set("Content-Type", "application/json")
+
+		activeFunds, err := fh.fundService.GetAllActiveFunds()
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		activeFundsResponse := new(models.ActiveFundDetailsResponse)
+
+		res.WriteHeader(http.StatusOK)
+		activeFundsResponse.Code = 0
+		activeFundsResponse.Data.FundsInfo = activeFunds
+		response, err := json.Marshal(activeFundsResponse)
 		if err != nil {
 			fmt.Fprintf(res, "Decoding error")
 			return
