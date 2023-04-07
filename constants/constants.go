@@ -12,5 +12,6 @@ const (
 	UserIDColumnName              = "user_id"
 	TotalAmountColumnName         = "amount"
 	FundNameColumnName            = "name"
+	FundStatusColumnName          = "status"
 	ForeignKeyConstraintErrorCode = pq.ErrorCode("23503")
 )

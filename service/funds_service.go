@@ -79,6 +79,12 @@ func (fs *fundService) Donate(request *models.DonationRequest) (*models.FundDona
 		return nil, err
 	}
 
+	//get latest fund details
+	fundDetails, err = fs.fundsDB.GetFundDetailsByID(request.DonatedInFund)
+	if err != nil {
+		return nil, err
+	}
+
 	donatedFundDetails := &models.FundDonationInfo{
 		FundName:            fundDetails.FundName,
 		TotalAmountRaised:   totalRaisedAmount + request.DonationAmount,

@@ -79,7 +79,12 @@ func (fdb *fundsDB) CreateNewDonation(request *models.DonationRequest, totalRais
 	}
 
 	if totalRaisedAmount+request.DonationAmount == totalFundAmount {
-		//TODO: update fund status to DONE
+		updateParams := make(map[string]interface{})
+		updateParams[constants.FundStatusColumnName] = models.DONE.String()
+		_, err = fdb.UpdateFundByID(updateParams, request.DonatedInFund)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -96,7 +101,12 @@ func (fdb *fundsDB) AddAmountToExistingDonation(request *models.DonationRequest,
 	}
 
 	if totalRaisedAmount+request.DonationAmount == totalFundAmount {
-		//TODO: update fund status to DONE
+		updateParams := make(map[string]interface{})
+		updateParams[constants.FundStatusColumnName] = models.DONE.String()
+		_, err = fdb.UpdateFundByID(updateParams, request.DonatedInFund)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

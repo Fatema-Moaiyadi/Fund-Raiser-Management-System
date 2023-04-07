@@ -67,6 +67,7 @@ type ActiveFundDetailsResponse struct {
 type UpdateFund struct {
 	FundName        string `db:"name,omitempty" json:"fund_name,omitempty"`
 	TotalFundAmount int64  `db:"amount,omitempty" json:"total_fund_amount,omitempty"`
+	FundStatus      string `db:"status,omitempty"`
 }
 
 type UpdateFundResponse struct {

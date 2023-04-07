@@ -24,7 +24,7 @@ const (
 	addAmountToExistingDonationQuery   = "UPDATE donation SET amount = amount+$1 where donated_in_fund_id=$2 AND donated_by_user_id=$3 AND donation_status = 'PAID'"
 	getTotalRaisedAmountForFundQuery   = "SELECT sum(amount) from donation where donated_in_fund_id = $1"
 	getPaidDonationsForFundByUserQuery = "SELECT * from donation where donated_in_fund_id=$1 AND donated_by_user_id=$2 AND donation_status = 'PAID'"
-	getFundsRaisedByUserIDQuery        = "SELECT funds.name, funds.amount , sum(donation.amount) as amount_raised from funds inner join donation on funds.fund_id = donation.donated_in_fund_id where funds.raised_by_user_id=$1 AND funds.status='IN_PROGRESS' group by funds.name,funds.amount"
-	getDonationsByUserIDQuery          = "SELECT funds.name, donation.amount as amount_donated from funds inner join donation on funds.fund_id = donation.donated_in_fund_id where donation.donated_by_user_id=$1 AND donation.donation_status='PAID'"
+	getFundsRaisedByUserIDQuery        = "SELECT funds.name, funds.amount , sum(donation.amount) as amount_raised, funds.status from funds inner join donation on funds.fund_id = donation.donated_in_fund_id where funds.raised_by_user_id=$1 AND funds.status='IN_PROGRESS' group by funds.name,funds.amount,funds.status"
+	getDonationsByUserIDQuery          = "SELECT funds.name, donation.amount as amount_donated, funds.status from funds inner join donation on funds.fund_id = donation.donated_in_fund_id where donation.donated_by_user_id=$1 AND donation.donation_status='PAID'"
 	updateDonationStatusToRefund       = "UPDATE donation SET donation_status = 'REFUNDED', updated_at=$1 where donated_in_fund_id=$2"
 )
