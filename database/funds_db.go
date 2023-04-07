@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/fatema-moaiyadi/fund-raiser-system/constants"
 	"github.com/fatema-moaiyadi/fund-raiser-system/models"
 	systemerrors "github.com/fatema-moaiyadi/fund-raiser-system/system_errors"
@@ -24,6 +25,7 @@ type FundsDB interface {
 	GetExistingDonationsForFundByUser(fundID, userID int64) ([]*models.DonationData, error)
 	GetFundsRaisedByUserID(userID int64) ([]*models.FundDetails, error)
 	GetAllActiveFunds() ([]models.ActiveFundDetails, error)
+	UpdateFund(updateParams map[string]interface{}, fundID int64) (*models.UpdateFund, error)
 }
 
 func NewFundsDB(db *sqlx.DB) FundsDB {
@@ -172,4 +174,60 @@ func (fdb *fundsDB) GetAllActiveFunds() ([]models.ActiveFundDetails, error) {
 	}
 
 	return activeFunds, nil
+}
+
+func (fdb *fundsDB) UpdateFund(updateParams map[string]interface{}, fundID int64) (*models.UpdateFund, error) {
+	var (
+		setValues []interface{}
+		setKeys   []string
+		getValues []string
+		index     = 1
+	)
+
+	for key, value := range updateParams {
+		setKeys = append(setKeys, key+"=$"+fmt.Sprintf("%d", index))
+		setValues = append(setValues, value)
+		getValues = append(getValues, key)
+		index++
+	}
+
+	updateQuery := updateFundsSetClause + strings.Join(setKeys, ",") + fmt.Sprintf(whereFundIDClause, index, index+1)
+
+	tx, err := fdb.database.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := tx.Exec(updateQuery, append(setValues, time.Now(), fundID)...)
+
+	affectedRows, e := result.RowsAffected()
+	if e != nil {
+		return nil, e
+	}
+
+	if affectedRows == 0 {
+		return nil, systemerrors.ErrFundNotFound
+	}
+	if err != nil {
+		e := tx.Rollback()
+		if e != nil {
+			return nil, e
+		}
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	updatedInfo := new(models.UpdateFund)
+	getQuery := fmt.Sprintf(getFundByIDWithUpdateInfo, strings.Join(getValues, ","))
+	err = fdb.database.Get(updatedInfo, getQuery, fundID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedInfo, nil
 }

@@ -41,19 +41,7 @@ func (userHandler *userHandler) LoginHandler() http.HandlerFunc {
 
 		err := json.NewDecoder(req.Body).Decode(loginReq)
 		if err != nil {
-			res.WriteHeader(http.StatusBadRequest)
-
-			errorRes := new(models.ErrorResponse)
-			errorRes.Error.Message = "Invalid Request"
-			errorRes.Error.Status = http.StatusBadRequest
-			errorRes.Code = -1
-
-			response, err := json.Marshal(errorRes)
-			if err != nil {
-				fmt.Fprintf(res, "Decoding error")
-				return
-			}
-			res.Write(response)
+			systemerrors.WriteErrorResponse(res, err)
 			return
 		}
 

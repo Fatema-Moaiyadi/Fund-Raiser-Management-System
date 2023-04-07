@@ -16,6 +16,7 @@ type FundService interface {
 	CreateFund(fundRequest *models.CreateFundRequest) (*models.FundDetails, error)
 	Donate(request *models.DonationRequest) (*models.FundDonationInfo, error)
 	GetAllActiveFunds() ([]models.ActiveFundDetails, error)
+	UpdateFundByID(fundID int64, updateFundRequest *models.UpdateFund) (*models.UpdateFund, error)
 }
 
 func NewFundService(fundsDB database.FundsDB, userDB database.UserDatabase) FundService {
@@ -95,4 +96,22 @@ func (fs *fundService) GetAllActiveFunds() ([]models.ActiveFundDetails, error) {
 	}
 
 	return activeFunds, nil
+}
+
+func (fs *fundService) UpdateFundByID(fundID int64, updateFundRequest *models.UpdateFund) (*models.UpdateFund, error) {
+	updateParams := make(map[string]interface{})
+	if updateFundRequest.TotalFundAmount != 0 {
+		updateParams[constants.TotalAmountColumnName] = updateFundRequest.TotalFundAmount
+	}
+
+	if updateFundRequest.FundName != "" {
+		updateParams[constants.FundNameColumnName] = updateFundRequest.FundName
+	}
+
+	updateFundResponse, err := fs.fundsDB.UpdateFund(updateParams, fundID)
+	if err != nil {
+		return nil, err
+	}
+
+	return updateFundResponse, nil
 }

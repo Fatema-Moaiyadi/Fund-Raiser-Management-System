@@ -22,6 +22,7 @@ type FundsHandler interface {
 	CreateFund() http.HandlerFunc
 	DonateInFund() http.HandlerFunc
 	GetAllActiveFunds() http.HandlerFunc
+	UpdateFund() http.HandlerFunc
 }
 
 func NewFundsHandler(fundService service.FundService, userService service.UserService) FundsHandler {
@@ -38,18 +39,7 @@ func (fh *fundsHandler) CreateFund() http.HandlerFunc {
 		createFundRequest := new(models.CreateFundRequest)
 		err := json.NewDecoder(request.Body).Decode(createFundRequest)
 		if err != nil {
-			res.WriteHeader(http.StatusBadRequest)
-
-			errorRes := new(models.ErrorResponse)
-			errorRes.Error.Message = "Invalid Request"
-			errorRes.Error.Status = http.StatusBadRequest
-			errorRes.Code = -1
-
-			response, err := json.Marshal(errorRes)
-			if err != nil {
-				fmt.Fprintf(res, "Decoding error")
-			}
-			res.Write(response)
+			systemerrors.WriteErrorResponse(res, err)
 			return
 		}
 
@@ -80,18 +70,7 @@ func (fh *fundsHandler) DonateInFund() http.HandlerFunc {
 
 		err := json.NewDecoder(request.Body).Decode(donationRequest)
 		if err != nil {
-			res.WriteHeader(http.StatusBadRequest)
-
-			errorRes := new(models.ErrorResponse)
-			errorRes.Error.Message = "Invalid Request"
-			errorRes.Error.Status = http.StatusBadRequest
-			errorRes.Code = -1
-
-			response, err := json.Marshal(errorRes)
-			if err != nil {
-				fmt.Fprintf(res, "Decoding error")
-			}
-			res.Write(response)
+			systemerrors.WriteErrorResponse(res, err)
 			return
 		}
 
@@ -180,6 +159,46 @@ func (fh *fundsHandler) GetAllActiveFunds() http.HandlerFunc {
 			fmt.Fprintf(res, "Decoding error")
 			return
 		}
+		res.Write(response)
+	}
+}
+
+func (fh *fundsHandler) UpdateFund() http.HandlerFunc {
+	return func(res http.ResponseWriter, request *http.Request) {
+		res.Header().Set("Content-Type", "application/json")
+
+		updateFundRequest := new(models.UpdateFund)
+
+		err := json.NewDecoder(request.Body).Decode(&updateFundRequest)
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		fundID, err := strconv.Atoi(mux.Vars(request)["fund_id"])
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		updatedDetails, err := fh.fundService.UpdateFundByID(int64(fundID), updateFundRequest)
+		if err != nil {
+			systemerrors.WriteErrorResponse(res, err)
+			return
+		}
+
+		updatedFundResponse := new(models.UpdateFundResponse)
+
+		updatedFundResponse.Code = 0
+		updatedFundResponse.Message = "Fund updated successfully"
+		updatedFundResponse.Data.UpdatedInfo = *updatedDetails
+
+		response, err := json.Marshal(updatedFundResponse)
+		if err != nil {
+			fmt.Fprintf(res, "Decoding error")
+			return
+		}
+
 		res.Write(response)
 	}
 }

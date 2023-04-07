@@ -63,3 +63,16 @@ type ActiveFundDetailsResponse struct {
 		FundsInfo []ActiveFundDetails `json:"funds_info"`
 	} `json:"data"`
 }
+
+type UpdateFund struct {
+	FundName        string `db:"name,omitempty" json:"fund_name,omitempty"`
+	TotalFundAmount int64  `db:"amount,omitempty" json:"total_fund_amount,omitempty"`
+}
+
+type UpdateFundResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    struct {
+		UpdatedInfo UpdateFund `json:"updated_info"`
+	} `json:"data"`
+}
