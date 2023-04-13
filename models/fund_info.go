@@ -8,7 +8,6 @@ type FundStatus int
 const (
 	IN_PROGRESS FundStatus = iota
 	DONE
-	APPLIED
 	DELETED
 )
 
@@ -18,8 +17,6 @@ func (s FundStatus) String() string {
 		return "IN_PROGRESS"
 	case DONE:
 		return "DONE"
-	case APPLIED:
-		return "APPLIED"
 	case DELETED:
 		return "DELETED"
 	}
