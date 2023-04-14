@@ -1,9 +1,11 @@
 package service
 
 import (
+	"fmt"
 	"github.com/fatema-moaiyadi/fund-raiser-system/constants"
 	"github.com/fatema-moaiyadi/fund-raiser-system/database"
 	"github.com/fatema-moaiyadi/fund-raiser-system/models"
+	systemerrors "github.com/fatema-moaiyadi/fund-raiser-system/system_errors"
 	"github.com/fatema-moaiyadi/fund-raiser-system/validations"
 )
 
@@ -108,6 +110,24 @@ func (fs *fundService) GetAllActiveFunds() ([]models.ActiveFundDetails, error) {
 func (fs *fundService) UpdateFundByID(fundID int64, updateFundRequest *models.UpdateFund) (*models.UpdateFund, error) {
 	updateParams := make(map[string]interface{})
 	if updateFundRequest.TotalFundAmount != 0 {
+		totalAmountRaised, err := fs.fundsDB.GetTotalRaisedAmountForFund(fundID)
+		if err != nil {
+			return nil, err
+		}
+
+		//trying to lower the goal amount, when it has been already raised
+		if updateFundRequest.TotalFundAmount == totalAmountRaised {
+			//_, err := fs.fundsDB.UpdateFundByID(map[string]interface{}{
+			//	constants.FundStatusColumnName: models.DONE.String(),
+			//}, fundID)
+			//if err != nil {
+			//	return nil, err
+			//}
+			updateParams[constants.FundStatusColumnName] = models.DONE.String()
+		} else if updateFundRequest.TotalFundAmount < totalAmountRaised {
+			return nil, systemerrors.ConvertToErrorWithParams(systemerrors.ErrAmountAlreadyRaised,
+				fmt.Sprintf("%d", totalAmountRaised))
+		}
 		updateParams[constants.TotalAmountColumnName] = updateFundRequest.TotalFundAmount
 	}
 

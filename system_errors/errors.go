@@ -29,8 +29,9 @@ var (
 	ErrNoUsers                     = errors.New("no users exist in system")
 	ErrInvalidFilterRequest        = errors.New("invalid filter parameter")
 	ErrNoActiveFunds               = errors.New("no active funds exist in system")
+	ErrAmountAlreadyRaised         = errors.New("cannot lower the fund amount. Funds have already been raised upto Rs")
 )
 
-func ConvertToUserSpecificError(systemErr error, err string) error {
-	return errors.New(fmt.Sprintf("%s %s", systemErr, err))
+func ConvertToErrorWithParams(systemErr error, key string) error {
+	return errors.New(fmt.Sprintf("%s %s", systemErr, key))
 }

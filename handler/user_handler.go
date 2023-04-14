@@ -155,7 +155,7 @@ func (userHandler *userHandler) DeleteUserByID() http.HandlerFunc {
 	return func(res http.ResponseWriter, request *http.Request) {
 		res.Header().Set("Content-Type", "application/json")
 
-		userID, err := strconv.Atoi(mux.Vars(request)["fund_id"])
+		userID, err := strconv.Atoi(mux.Vars(request)["user_id"])
 		if err != nil {
 			systemerrors.WriteErrorResponse(res, err)
 			return

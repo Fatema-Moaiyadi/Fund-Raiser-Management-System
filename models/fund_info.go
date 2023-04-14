@@ -48,8 +48,8 @@ type CreateFundResponse struct {
 }
 
 type ActiveFundDetails struct {
-	RaisedBy     string `db:"raised_by,omitempty" json:"raised_by_user_id,omitempty"`
 	FundName     string `db:"name,omitempty" json:"fund_name,omitempty"`
+	RaisedBy     string `db:"raised_by,omitempty" json:"raised_by_user_id,omitempty"`
 	AmountRaised *int64 `db:"amount_raised,omitempty" json:"amount_raised,omitempty"`
 	TotalAmount  int64  `db:"amount,omitempty" json:"total_amount,omitempty"`
 }
@@ -64,7 +64,7 @@ type ActiveFundDetailsResponse struct {
 type UpdateFund struct {
 	FundName        string `db:"name,omitempty" json:"fund_name,omitempty"`
 	TotalFundAmount int64  `db:"amount,omitempty" json:"total_fund_amount,omitempty"`
-	FundStatus      string `db:"status,omitempty"`
+	FundStatus      string `db:"status,omitempty" json:"fund_status,omitempty"`
 }
 
 type UpdateFundResponse struct {

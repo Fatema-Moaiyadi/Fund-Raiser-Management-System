@@ -64,15 +64,15 @@ func ValidateDonateRequest(donationRequest models.DonationRequest, amountRaised 
 	}
 
 	if donationRequest.DonationAmount < constants.MinDonationAmount {
-		return systemerrors.ConvertToUserSpecificError(systemerrors.ErrLessAmount, fmt.Sprintf("%d", constants.MinDonationAmount))
+		return systemerrors.ConvertToErrorWithParams(systemerrors.ErrLessAmount, fmt.Sprintf("%d", constants.MinDonationAmount))
 	}
 
 	if donationRequest.DonationAmount > totalFundAmount-amountRaised {
-		return systemerrors.ConvertToUserSpecificError(systemerrors.ErrMoreAmount, fmt.Sprintf("%d", totalFundAmount-amountRaised))
+		return systemerrors.ConvertToErrorWithParams(systemerrors.ErrMoreAmount, fmt.Sprintf("%d", totalFundAmount-amountRaised))
 	}
 
 	if donationRequest.DonationAmount > constants.MaxDonationAmount {
-		return systemerrors.ConvertToUserSpecificError(systemerrors.ErrMoreAmount, fmt.Sprintf("%d", constants.MaxDonationAmount))
+		return systemerrors.ConvertToErrorWithParams(systemerrors.ErrMoreAmount, fmt.Sprintf("%d", constants.MaxDonationAmount))
 	}
 
 	if fundDetails.FundStatus != models.IN_PROGRESS.String() {
